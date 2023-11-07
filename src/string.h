@@ -1,5 +1,7 @@
 #ifndef SRC_S21_STRING_H_
 #define SRC_S21_STRING_H_
+
+
 // #define s21_size_t unsigned long long
 #define s21_NULL ((void *)0)
 #include <stdarg.h>
@@ -7,7 +9,12 @@
 #include <stdlib.h>
 #include <math.h>
 #include <wctype.h>
+// временно
+#include <stdio.h>
+
 typedef long long unsigned s21_size_t;
+
+
 
 #if defined(__APPLE__) && defined(__MACH__)
 #define UERROR "Unknown error: "
@@ -189,7 +196,7 @@ s21_size_t s21_strcspn(const char *str1, const char *str2);
 char *s21_strerror(int errnum);
 
 // 15 Вычисляет количество символов в строке, возвращает количество
-int s21_strlen(const char* str);
+s21_size_t s21_strlen(const char* str);
 
 // 16 Ищет в строке вхождение одного из символов, возвращает указатель или 0
 char *s21_strpbrk(const char *str1, const char *str2);
@@ -208,91 +215,87 @@ char *s21_strtok(char *str, const char *delim);
 
 // s21_sprintf.c
 
-typedef struct options {
-    int opt_width;
-    int opt_decimal;
-    int opt_dot;
-    char opt_spec;
-    char opt_flag[3];
-    char opt_height;
-} options;
 
+typedef struct options_sprintf{
+// flags
+    int left_alignment; //  '-' выравнивание по левому краю
+    int show_sign; //       '+' показывать знак числа
+    int leave_space; //     ' ' если нет знака оставлять пробел
+    int insert_ox_dot;  //  '#' При использовании со спецификаторами o, x или X перед числом вставляется 0, 0x или 0X соответственно
+    // При использовании с e, E и f "заставляет" записанный вывод содержать десятичную точку, даже если за ней не последует никаких цифр
+    // При использовании с g или G результат такой же, как и с e или E, но конечные нули не удаляются
+    int insert_zero; //     '0' заполянет число нулями 
 
-struct format_sprintf {
-  int flag_plus;
-  int flag_minus;
-  int flag_space;
-  int width;
-  int precision;
-  int is_pricision;
-  int length_h;
-  int length_l;
-};
+// widtd, len
+    int width; // ширина - минимальное количество печатаемых символов, если число меньше, то дополняется пробелами
+    int precision; // точность - минимальное количество записываемых цифр, если значение короче, то записывается нулями
+    char length; // h - short idouxX, l - long idouxX, L - double eEfgG
 
-// Обнуляет флаги
-void init_flags(struct format_sprintf *formatS);
+// additionally, для удобства кодинга
+} options_sprintf;
+
 
 // Парсит данные и записывает в поля структуры.
-int parsing(const char **format, struct format_sprintf *_format_sprintff)
+int parsing(const char **format, options_sprintf * opt, char ** str);
 
 
 
 
-// Переводит символ в число
-int s21_virtual_num(int num, char ch_num);
+// // Переводит символ в число
+// int s21_virtual_num(int num, char ch_num);
 
-// Ищет флаги, длину, ширину, точность
-int s21_post_parse(char spec, char *parse_buff, char *identify_buff, char *buffer, va_list arg);
-
-// Записывает строку в буфер
-int s21_sprintf(char *buffer, const char *str, ...);
-
-// Ищет спецификаторы
-void s21_parse(char *buffer, const char *str, va_list arg);
-
-// Записывает символ в буфер
-void s21_char(char *buff, int c, options *OP);
-
-// Идентифицирует флаг
-void s21_identify(char *buff, options *OP, va_list arg);
-
-// Обрабатывает точку
-int s21_dot(char *parse_buff, char *numbers, options *OP);
+// // Ищет флаги, длину, ширину, точность
+// int s21_post_parse(char spec, char *parse_buff, char *identify_buff, char *buffer, va_list arg);
 
 // Записывает строку в буфер
-void s21_putstr(char *buffer, char *str, options *OP);
+int s21_sprintf(char *str, const char *format, ...);
 
-// Записывает число в буфер
-void s21_putnbr(char *buffer, long long int n, options *OP);
+// // Ищет спецификаторы
+// void s21_parse(char *buffer, const char *str, va_list arg);
 
-// Разбивает число на символы
-char *s21_itoa(int num, char *buffer, int base, options *OP);
+// // Записывает символ в буфер
+// void s21_char(char *buff, int c, options *OP);
 
-// Разбивает длинное число на символы
-char *s21_long_itoa(long long int num, char *buffer, int base, options *OP);
+// // Идентифицирует флаг
+// void s21_identify(char *buff, options *OP, va_list arg);
 
-// Разбивает короткое число на символы
-char *s21_short_itoa(short int num, char *buffer, int base, options *OP);
+// // Обрабатывает точку
+// int s21_dot(char *parse_buff, char *numbers, options *OP);
 
-// Записывает беззнаковое число в буфер
-void s21_put_unsigned_nbr(char *buffer, unsigned long long int n, options *OP);
+// // Записывает строку в буфер
+// void s21_putstr(char *buffer, char *str, options *OP);
 
-// Разбивает беззнаковое число на символы
-char *s21_utoa(unsigned int n, options *OP);
+// // Записывает число в буфер
+// void s21_putnbr(char *buffer, long long int n, options *OP);
 
-// Разбивает длинное беззнаковое число на символы
-char *s21_long_utoa(unsigned long long int n, options *OP);
+// // Разбивает число на символы
+// char *s21_itoa(int num, char *buffer, int base, options *OP);
 
-// Разбивает короткое беззнаковое число на символы
-char *s21_short_utoa(unsigned short int n, options *OP);
+// // Разбивает длинное число на символы
+// char *s21_long_itoa(long long int num, char *buffer, int base, options *OP);
 
-// Записывает вещественное число в буфер
-void s21_putdbl(char *res, double n, options *OP);
+// // Разбивает короткое число на символы
+// char *s21_short_itoa(short int num, char *buffer, int base, options *OP);
 
-// Преобразует число с плавающей точкой в строку
-char *s21_gcvt(double f, s21_size_t ndigit, char *buf, options *OP);
+// // Записывает беззнаковое число в буфер
+// void s21_put_unsigned_nbr(char *buffer, unsigned long long int n, options *OP);
 
-// Меняет последовательность в обратную сторону
-void s21_reverse(char *buffer, int len);
+// // Разбивает беззнаковое число на символы
+// char *s21_utoa(unsigned int n, options *OP);
+
+// // Разбивает длинное беззнаковое число на символы
+// char *s21_long_utoa(unsigned long long int n, options *OP);
+
+// // Разбивает короткое беззнаковое число на символы
+// char *s21_short_utoa(unsigned short int n, options *OP);
+
+// // Записывает вещественное число в буфер
+// void s21_putdbl(char *res, double n, options *OP);
+
+// // Преобразует число с плавающей точкой в строку
+// char *s21_gcvt(double f, s21_size_t ndigit, char *buf, options *OP);
+
+// // Меняет последовательность в обратную сторону
+// void s21_reverse(char *buffer, int len);
 
 #endif  // SRC_S21_STRING_H_

@@ -1,5 +1,4 @@
-#include <string.h>
-
+#include "string.h"
 /**
  * @brief  Ищет вхождение в массив символа, код которого задан аргументом c,
 сравнивая каждый байт массива.
@@ -12,8 +11,7 @@
  */
 void *s21_memchr(const void *str, int c, s21_size_t n) {
   char *s1 = (char *)str;
-  int flag = 0;
-  char *buf = S21_NULL;
+  char *buf = s21_NULL;
   for (s21_size_t i = 0; i < n; i++) {
     if (s1[i] == c) {
       buf = s1 + i;
@@ -141,7 +139,7 @@ char *s21_strncat(char *dest, const char *src, s21_size_t n) {
  */
 char *s21_strchr(const char *str, int c) {
   while (*str != c && *str) str++;
-  return *str == c ? (char *)str : S21_NULL;
+  return *str == c ? (char *)str : s21_NULL;
 }
 
 /**
