@@ -237,7 +237,7 @@ typedef struct options_sprintf{
 
 // Парсит данные и записывает в поля структуры.
 int parsing(const char **format, options_sprintf * opt, char ** str);
-
+int get_flags(const char **format, options_sprintf * opt);
 
 
 
