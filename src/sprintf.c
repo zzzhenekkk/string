@@ -29,7 +29,7 @@ int s21_sprintf(char *str, const char *format, ...) {
 // format форматная строка со спецификаторами
 // перебираем все после процента
 int parsing(const char **format, options_sprintf * opt, char ** str) {
-  int get_flags(format, opt);
+  get_flags(format, opt);
   (void)opt;
   (void)str;
   
@@ -63,7 +63,7 @@ int get_flags(const char **format, options_sprintf * opt) {
       printf("Какая-то ошибка )))");
       break;
     }
-    *format++;
+    (*format)++;
   }
-  
+  return 0;
 }
