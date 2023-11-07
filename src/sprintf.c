@@ -29,11 +29,41 @@ int s21_sprintf(char *str, const char *format, ...) {
 // format форматная строка со спецификаторами
 // перебираем все после процента
 int parsing(const char **format, options_sprintf * opt, char ** str) {
-  (void)format;
+  int get_flags(format, opt);
   (void)opt;
   (void)str;
   
 
   // не забудем вернуть формат увелеченный на количество 
   return 0;
+}
+
+//считываем флаги "-+ #0"
+int get_flags(const char **format, options_sprintf * opt) {
+
+  int long_flags = s21_strspn( *format, "-+ #0");
+  while(long_flags--) {
+    switch (**format) {
+    case '-':
+      opt->left_alignment = 1;
+      break;
+    case '+':
+      opt->show_sign = 1;
+      break;
+    case ' ':
+      opt->leave_space = 1;
+      break;
+    case '#':
+      opt->insert_ox_dot = 1;
+      break;
+    case '0':
+      opt->insert_zero = 1;
+      break;
+    default:
+      printf("Какая-то ошибка )))");
+      break;
+    }
+    *format++;
+  }
+  
 }
