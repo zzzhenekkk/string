@@ -215,10 +215,6 @@ char *s21_strncpy(char *dest, const char *src, s21_size_t n) {
   return dest;
 }
 
-
-
-
-
 /**
  * @brief Вычисляет длину начального сегмента str1, который полностью состоит из
  * символов, не входящих в str2.
@@ -241,10 +237,6 @@ s21_size_t s21_strcspn(const char *str1, const char *str2) {
   return len;
 }
 
-
-
-
-
 /**
  * @brief Вычисляет количество символов в строке.
  *
@@ -257,12 +249,6 @@ s21_size_t s21_strlen(const char *str) {
   while (str[len]) len++;
   return len;
 }
-
-
-
-
-
-
 
 /**
  * @brief Ищет первое вхождение в строку, одного из символов, входящих в строку
@@ -287,9 +273,6 @@ char *s21_strpbrk(const char *str1, const char *str2) {
   }
   return res;
 }
-
-
-
 
 /**
  * @brief Ищет последнее вхождения символа, код которого указан в аргументе c, в
@@ -320,19 +303,11 @@ char *s21_strrchr(const char *str, int c) {
  * символы, указанные в аргументе str2.
  */
 s21_size_t s21_strspn(const char *str1, const char *str2) {
-  s21_size_t i, j, counter = 0;
-
-  for (i = 0; &str1[i] != s21_NULL; i++) {
-    if (counter != i) break;
-    for (j = 0; &str2[j] != s21_NULL; j++) {
-      if (str1[i] == str2[j]) {
-        counter++;
-      } else {
-        break;
-      }
-    }
+  s21_size_t len = 0;
+  while (*str1 && s21_strchr(str2, *str1++)) {
+    len++;
   }
-  return counter;
+  return len;
 }
 
 /**

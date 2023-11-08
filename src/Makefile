@@ -1,7 +1,7 @@
 # Переменная для цели
 TARGET = s21_sprintf
 CC = gcc
-FLAGS = -Wall -Werror -Wextra -std=c11 -g
+FLAGS = -g #-Wall -Werror -Wextra -std=c11 
 LFLAGS=#-fsanitize=address
 
 # Имена которые оканчиваются на .c, wildcar - все те файлы, которые удовлятворяют маске

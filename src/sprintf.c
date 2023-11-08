@@ -1,10 +1,9 @@
 #include "string.h"
 
 int s21_sprintf(char *str, const char *format, ...) {
-  char * str_begin = str; // понадобится для вычисления длины на return
+  char *str_begin = str;  // понадобится для вычисления длины на return
   va_list vl;
   va_start(vl, format);
-  
 
   // обрабатываем каждый элемент формата, если не встретили %, записываем в str,
   // иначе парсим спецификатор с флагами
@@ -18,52 +17,116 @@ int s21_sprintf(char *str, const char *format, ...) {
       format++;
       // сюда записываем все флаги и значения для спецификатора
       options_sprintf opt = {0};
-      parsing(&format, &opt, &str);
+      parsing(&format, &opt, &str, &vl);
     }
   }
   va_end(vl);
-  return (str-str_begin);
+  return (str - str_begin);
 }
 
 // str куда записываем
 // format форматная строка со спецификаторами
 // перебираем все после процента
-int parsing(const char **format, options_sprintf * opt, char ** str) {
+int parsing(const char **format, options_sprintf *opt, char **str,
+            va_list *vl) {
   get_flags(format, opt);
+  get_width(format, opt, vl);
+  get_precision(format, opt, vl);
+  get_specifiers(format, opt, vl);
+
+  select_and_put_instr();
+
   (void)opt;
   (void)str;
-  
 
-  // не забудем вернуть формат увелеченный на количество 
+  // не забудем вернуть формат увелеченный на количество
   return 0;
 }
 
-//считываем флаги "-+ #0"
-int get_flags(const char **format, options_sprintf * opt) {
-
-  int long_flags = s21_strspn( *format, "-+ #0");
-  while(long_flags--) {
+// считываем флаги "-+ #0"
+int get_flags(const char **format, options_sprintf *opt) {
+  int long_flags = s21_strspn(*format, "-+ #0");
+  printf("!!!%s %llu!!!\n", *format, s21_strspn(*format, "-+ #0"));
+  while (long_flags--) {
     switch (**format) {
-    case '-':
-      opt->left_alignment = 1;
-      break;
-    case '+':
-      opt->show_sign = 1;
-      break;
-    case ' ':
-      opt->leave_space = 1;
-      break;
-    case '#':
-      opt->insert_ox_dot = 1;
-      break;
-    case '0':
-      opt->insert_zero = 1;
-      break;
-    default:
-      printf("Какая-то ошибка )))");
-      break;
+      case '-':
+        opt->left_alignment = 1;
+        break;
+      case '+':
+        opt->show_sign = 1;
+        break;
+      case ' ':
+        opt->leave_space = 1;
+        break;
+      case '#':
+        opt->insert_ox_dot = 1;
+        break;
+      case '0':
+        opt->insert_zero = 1;
+        break;
+      default:
+        printf("Какая-то ошибка )))");
+        break;
     }
     (*format)++;
   }
   return 0;
+}
+
+// считываем значение ширины
+int get_width(const char **format, options_sprintf *opt, va_list *vl) {
+  if (**format >= '0' && **format <= '9') {
+    int long_width = s21_strspn(*format, "1234567890");
+    // printf("long width %d\n", long_width);
+    opt->width = string_to_number(*format, long_width);
+    *format += long_width;
+    // нужно написать преоброзование строки в число
+  } else if (**format == '*') {
+    // нужно дописать получение int из аргв
+    opt->width = va_arg(*vl, int);
+    (*format)++;
+  }
+  printf("!!!!!    opt->width %llu   !!! \n", opt->width);
+  return 0;
+}
+
+// считываем точность
+int get_precision(const char **format, options_sprintf *opt, va_list *vl) {
+  if (**format == '.' && *(*format + 1) != '*') {
+    (*format)++;
+    int long_precision = s21_strspn(*format, "1234567890");
+    // printf("long precision %d\n", long_precision);
+    opt->precision = string_to_number(*format, long_precision);
+    *format += long_precision;
+    // нужно написать преоброзование строки в число
+  } else if (**format == '.' && *(*format + 1) == '*') {
+    // нужно дописать получение int из аргв
+    opt->precision = va_arg(*vl, int);
+    (*format) += 2;
+  }
+  printf("!!!!!    opt->precision %llu   !!! \n", opt->precision);
+  return 0;
+}
+
+// считываем спецификатор
+int get_specifiers(const char **format, options_sprintf *opt, va_list *vl) {
+  if (s21_strchr("cdieEfgGosuxXpn%", **format)) {
+    opt->specifiers = **format;
+    (*format)++;
+  }
+  return 0;
+}
+
+// преобразует строку в число, на заданное количество символов
+s21_size_t string_to_number(const char *start, int number_of_symbols) {
+  s21_size_t res = 0;
+  start += number_of_symbols - 1;
+  int i = 0;
+  while (number_of_symbols-- > 0) {
+    res += (s21_size_t)pow(10, i) * (int)(*start - 48);
+    i++;
+    start--;
+  }
+  // printf("res %lu\n", res);
+  return res;
 }
