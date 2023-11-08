@@ -29,18 +29,61 @@ int s21_sprintf(char *str, const char *format, ...) {
 // перебираем все после процента
 int parsing(const char **format, options_sprintf *opt, char **str,
             va_list *vl) {
+  // получаем всю информацию из под %
+  get_opt(format, opt, str, vl);
+  push_opt(format, opt, str, vl);
+  // не забудем вернуть формат увелеченный на количество
+  return 0;
+}
+
+int get_opt(const char **format, options_sprintf *opt, char **str,
+            va_list *vl) {
   get_flags(format, opt);
   get_width(format, opt, vl);
   get_precision(format, opt, vl);
+  get_length(format, opt);
   get_specifiers(format, opt, vl);
+  check_conflict_flags(opt);
+}
 
-  select_and_put_instr();
+int push_opt(const char **format, options_sprintf *opt, char **str,
+             va_list *vl) {
+  get_specifiers_from_valist(format, opt, str, vl);
 
-  (void)opt;
-  (void)str;
-
-  // не забудем вернуть формат увелеченный на количество
   return 0;
+}
+
+int get_specifiers_from_valist(const char **format, options_sprintf *opt,
+                               char **str, va_list *vl) {
+  if (opt->specifiers == 'd' || opt->specifiers == 'i') {
+    print_decimal(format, opt, str, vl);
+  } else if (opt->specifiers == 'u' || opt->specifiers == 'o' ||
+             opt->specifiers == 'x' || opt->specifiers == 'X') {
+    0;
+  }
+
+  return 0;
+}
+
+int print_decimal(const char **format, options_sprintf *opt, char **str,
+                  va_list *vl) {
+  long int var_decimal;
+  if (opt->length == 'h') {
+    var_decimal = (short)va_arg(*vl, short);
+  } else if (opt->length == 'l') {
+    var_decimal = (long int)va_arg(*vl, long int);
+  } else {
+    var_decimal = (int)va_arg(*vl, int);
+  }
+
+  return 0;
+}
+
+int check_conflict_flags(options_sprintf *opt) {
+  // '+' ' ' => '+'
+  if (opt->show_sign && opt->leave_space) opt->leave_space = 0;
+  // '-' '0' => '-'
+  if (opt->left_alignment && opt->insert_zero) opt->insert_zero = 0;
 }
 
 // считываем флаги "-+ #0"
@@ -90,6 +133,17 @@ int get_width(const char **format, options_sprintf *opt, va_list *vl) {
   return 0;
 }
 
+// считываем значение длины
+int get_length(const char **format, options_sprintf *opt) {
+  if (s21_strchr("hlL", **format)) {
+    opt->length = **format;
+    (*format)++;
+  } else {
+    // здесь, мы пишем, не подходящий, или еще какая-то ошибка
+  }
+  return 0;
+}
+
 // считываем точность
 int get_precision(const char **format, options_sprintf *opt, va_list *vl) {
   if (**format == '.' && *(*format + 1) != '*') {
@@ -113,6 +167,8 @@ int get_specifiers(const char **format, options_sprintf *opt, va_list *vl) {
   if (s21_strchr("cdieEfgGosuxXpn%", **format)) {
     opt->specifiers = **format;
     (*format)++;
+  } else {
+    // здесь, мы пишем, если спецификатор не подходящий, или еще какая-то ошибка
   }
   return 0;
 }

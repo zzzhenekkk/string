@@ -205,9 +205,9 @@ char *s21_strtok(char *str, const char *delim);
 typedef struct options_sprintf {
   // flags
   int left_alignment;  //  '-' выравнивание по левому краю
-  int show_sign;       //       '+' показывать знак числа
+  int show_sign;       //  '+' показывать знак числа
   int leave_space;  //     ' ' если нет знака оставлять пробел
-  int insert_ox_dot;  //  '#' При использовании со спецификаторами o, x или X
+  int insert_ox_dot;  //   '#' При использовании со спецификаторами o, x или X
                       //  перед числом вставляется 0, 0x или 0X соответственно
   // При использовании с e, E и f "заставляет" записанный вывод содержать
   // десятичную точку, даже если за ней не последует никаких цифр При
@@ -222,7 +222,7 @@ typedef struct options_sprintf {
                   // значение короче, то записывается нулями
   char length;  // h - short idouxX, l - long idouxX, L - double eEfgG
 
-  // specifiers
+  // specifiers спецификатор
   char specifiers;
 
   // additionally, для удобства кодинга
@@ -230,10 +230,18 @@ typedef struct options_sprintf {
 
 // Парсит данные и записывает в поля структуры.
 int parsing(const char **format, options_sprintf *opt, char **str, va_list *vl);
+int get_opt(const char **format, options_sprintf *opt, char **str, va_list *vl);
 int get_flags(const char **format, options_sprintf *opt);
 int get_width(const char **format, options_sprintf *opt, va_list *vl);
 int get_precision(const char **format, options_sprintf *opt, va_list *vl);
+int get_length(const char **format, options_sprintf *opt);
 int get_specifiers(const char **format, options_sprintf *opt, va_list *vl);
+
+int get_specifiers_from_valist(const char **format, options_sprintf *opt,
+                               char **str, va_list *vl);
+
+int check_conflict_flags(options_sprintf *opt);
+
 // преобразуем строку в число
 s21_size_t string_to_number(const char *start, int number_of_symbols);
 // // Переводит символ в число
