@@ -237,11 +237,14 @@ int get_precision(const char **format, options_sprintf *opt, va_list *vl);
 int get_length(const char **format, options_sprintf *opt);
 int get_specifiers(const char **format, options_sprintf *opt, va_list *vl);
 
+int push_opt(const char **format, options_sprintf *opt, char **str,
+             va_list *vl);
 int get_specifiers_from_valist(const char **format, options_sprintf *opt,
                                char **str, va_list *vl);
 
 int check_conflict_flags(options_sprintf *opt);
-
+int print_decimal(const char **format, options_sprintf *opt, char **str,
+                  va_list *vl);
 // преобразуем строку в число
 s21_size_t string_to_number(const char *start, int number_of_symbols);
 // // Переводит символ в число
