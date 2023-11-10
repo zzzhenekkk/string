@@ -226,6 +226,7 @@ typedef struct options_sprintf {
   char specifiers;
 
   // additionally, для удобства кодинга
+  int negative; // негативное ли число
 } options_sprintf;
 
 // Парсит данные и записывает в поля структуры.
@@ -245,7 +246,8 @@ int get_specifiers_from_valist(const char **format, options_sprintf *opt,
 int check_conflict_flags(options_sprintf *opt);
 int work_decimal(const char **format, options_sprintf *opt, char **str,
                   va_list *vl, char * buf);
-void s21_itoa(char *buf, long int var, int base);
+void s21_itoa(char *buf, options_sprintf *opt, long int var, int base);
+void edit_with(char *buf, options_sprintf *opt, long int var, int base);
 // преобразуем строку в число
 s21_size_t string_to_number(const char *start, int number_of_symbols);
 // // Переводит символ в число

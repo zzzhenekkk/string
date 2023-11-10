@@ -80,18 +80,31 @@ int work_decimal(const char **format, options_sprintf *opt, char **str,
   }
 
   // преобразует число в строку и записывает наоборот, со знаком!
-  s21_itoa(buf, var_decimal, 10);
+  s21_itoa(buf, opt, var_decimal, 10);
+
+  // дополняет нулями, если есть ширина больше чем число
+  edit_with(buf, opt, var_decimal, 10);
 
   strcat(*str, buf);
   *str += strlen(buf);
 
   return 0;
 }
+// устанавливаем ширину
+void edit_with(char *buf, options_sprintf *opt, long int var, int base) {
+    s21_size_t len = s21_strlen(buf);
+    s21_size_t def = opt->width - len;
+    while (def-- > 0) {
+      buf[len] = '0';
+    }
 
-// преобразует число в строку и записывает наоборот, со знаком!
-void s21_itoa(char *buf, long int var, int base) {
+}
+
+
+// преобразует число в строку и записывает наоборот, без знака!
+void s21_itoa(char *buf, options_sprintf *opt, long int var, int base) {
   int i = 0;
-  int negative = var < 0 ? 1 : 0;
+  opt->negative = var < 0 ? 1 : 0;
   var = var < 0 ? -var : var;
   if (var == 0) {
     buf[i++] = '0';
@@ -101,7 +114,7 @@ void s21_itoa(char *buf, long int var, int base) {
       var /= base;
     }
   }
-  buf[i] = (negative) ? '-' : 0;
+  buf[i] = 0;
 }
 
 int check_conflict_flags(options_sprintf *opt) {
@@ -211,3 +224,4 @@ s21_size_t string_to_number(const char *start, int number_of_symbols) {
   // printf("res %lu\n", res);
   return res;
 }
+
