@@ -83,7 +83,7 @@ int work_decimal(const char **format, options_sprintf *opt, char **str,
   s21_itoa(buf, opt, var_decimal, 10);
 
   // дополняет нулями, если есть ширина больше чем число
-  edit_with(buf, opt, var_decimal, 10);
+  edit_precision(buf, opt, var_decimal, 10);
 
   strcat(*str, buf);
   *str += strlen(buf);
@@ -91,15 +91,13 @@ int work_decimal(const char **format, options_sprintf *opt, char **str,
   return 0;
 }
 // устанавливаем ширину
-void edit_with(char *buf, options_sprintf *opt, long int var, int base) {
-    s21_size_t len = s21_strlen(buf);
-    s21_size_t def = opt->width - len;
-    while (def-- > 0) {
-      buf[len] = '0';
-    }
-
+void edit_precision(char *buf, options_sprintf *opt, long int var, int base) {
+  long int len = s21_strlen(buf);
+  long int def = opt->precision - len;
+  while (def-- > 0) {
+    buf[len++] = '0';
+  }
 }
-
 
 // преобразует число в строку и записывает наоборот, без знака!
 void s21_itoa(char *buf, options_sprintf *opt, long int var, int base) {
@@ -224,4 +222,3 @@ s21_size_t string_to_number(const char *start, int number_of_symbols) {
   // printf("res %lu\n", res);
   return res;
 }
-
