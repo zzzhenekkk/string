@@ -20,6 +20,15 @@ int main() {
   static char buf27[500] = {0};
   static char buf28[500] = {0};
 
+  static char buff2[500] = {0};
+  static char buff22[500] = {0};
+  static char buff23[500] = {0};
+  static char buff24[500] = {0};
+  static char buff25[500] = {0};
+  static char buff26[500] = {0};
+  static char buff27[500] = {0};
+  static char buff28[500] = {0};
+
   static char buf3[500] = {0};
   static char buf32[500] = {0};
   static char buf33[500] = {0};
@@ -74,9 +83,15 @@ int main() {
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
   sprintf(buf2,
-          "%d  1d '%1d'  .1d '%.1d'  4d '%4d'  .4d '%.4d'  4.6d '%4.6d'  6.4d "
+          "!!!%d  1d '%1d'  .1d '%.1d'  4d '%4d'  .4d '%.4d'  4.6d '%4.6d'  6.4d "
           "'%6.4d'\n",
           12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12);
+
+s21_sprintf(buff2,
+          "!!!%d  1d '%1d'  .1d '%.1d'  4d '%4d'  .4d '%.4d'  4.6d '%4.6d'  6.4d "
+          "'%6.4d'\n",
+          12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12);
+
 
   sprintf(buf22,
           "%d -1d '%-1d' -.1d '%-.1d' -4d '%-4d' -.4d '%-.4d' -4.6d '%-4.6d' "
@@ -84,12 +99,12 @@ int main() {
           12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12);
 
   sprintf(buf23,
-          "%d +1d '%+1d' +.1d '%+.1d' +4d '%+4d' +.4d '%+.4d' +4.6d '%+4.6d' "
+          "%d +1d '%+1d' +.1d '%+.1d' +04d '%+04d' +.4d '%+.4d' +4.6d '%+4.6d' "
           "+6.4d '%+6.4d'\n",
           12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12);
 
   sprintf(buf24,
-          "%d  1d '% 1d'  .1d '% .1d'  4d '% 4d'  .4d '% .4d'  4.6d '% 4.6d' "
+          "%d  1d '% 1d'  .1d '% .1d' 04d '% 04d'  .4d '% .4d'  4.6d '% 4.6d' "
           " 6.4d '% 6.4d'\n",
           12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12);
 
@@ -162,8 +177,9 @@ int main() {
 
   printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n", buf1, buf12, buf13, buf14, buf15,
          buf16, buf17, buf18);
-  printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n", buf2, buf22, buf23, buf24, buf25,
+  printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n", buf2, buff2, buf22, buf23, buf24, buf25,
          buf26, buf27, buf28);
+
   printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n", buf3, buf32, buf33, buf34, buf35,
          buf36, buf37, buf38);
   printf("%s\n\n", buf2);

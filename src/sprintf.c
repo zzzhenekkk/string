@@ -38,10 +38,15 @@ int parsing(const char **format, options_sprintf *opt, char **str,
 
 int get_opt(const char **format, options_sprintf *opt, char **str,
             va_list *vl) {
+  //-+' '#0
   get_flags(format, opt);
+  //-+0 12
+  //* s21_sprintf(buf, "%%", 'c');
   get_width(format, opt, vl);
   get_precision(format, opt, vl);
+  //hlL
   get_length(format, opt);
+  //cdieEfgGosuxXpn%
   get_specifiers(format, opt, vl);
   check_conflict_flags(opt);
 }
@@ -78,22 +83,80 @@ int work_decimal(const char **format, options_sprintf *opt, char **str,
   } else {
     var_decimal = (int)va_arg(*vl, int);
   }
-
   // преобразует число в строку и записывает наоборот, со знаком!
   s21_itoa(buf, opt, var_decimal, 10);
-
   // дополняет нулями, если есть ширина больше чем число
-  edit_precision(buf, opt, var_decimal, 10);
-
+  add_precision(buf, opt, var_decimal, 10);
+  // устанавливаем ширину
+  add_width(buf, opt, var_decimal, 10);
+  // впечатываем в буфер
+  save_buf_in_str (str, buf, opt, var_decimal, 10);
   strcat(*str, buf);
   *str += strlen(buf);
-
   return 0;
 }
+
+void save_buf_in_str (char **str, char *buf, options_sprintf *opt, long int var, int base) {
+  *str += s21_strlen(*str);
+  long long int len = s21_strlen(buf);
+  while (len--) {
+    *(*str)=buf[len];
+  }
+
+}
+
 // устанавливаем ширину
-void edit_precision(char *buf, options_sprintf *opt, long int var, int base) {
+void add_width(char *buf, options_sprintf *opt, long int var, int base) {
+  // флаг костыль нужен для печатания знака в ширину если есть negative space or show_sign
+  int  flag_zero_znak = 0;
+
+
+  long int len = s21_strlen(buf);
+  //если у нас стоит флаг '0' - insert_zero, то мы дополняем ширину 0
+  if (opt->insert_zero) {
+  
+  long int def = opt->width - len;
+    while (def-- > 0) {
+      buf[len] = '0';
+      if (def == 1 && (opt->negative || opt->show_sign || opt->leave_space)) {
+        flag_zero_znak = 1;
+        if (opt->negative) {buf[len] = '-';}
+        else if (opt->show_sign) {
+          buf[len] = opt->negative ? '-' : '+';
+        } else if (opt->leave_space) {
+          buf[len] = ' ';
+        }
+      len++;
+      }
+    }
+  }
+  
+  // вставляем знак
+  if (!flag_zero_znak) {
+    if (opt->negative) {
+      buf[len] = '-';
+    }  else if (opt->show_sign) {
+      buf[len] = opt->negative ? '-' : '+';
+    } else if (opt->leave_space) {
+      buf[len] = ' ';
+    }
+  }
+
+  len = s21_strlen(buf);
+  // вставляем пробелы
+  if (!opt->insert_zero) {
+    long int deff = opt->width - len;
+    while (deff-- > 0) {
+      buf[len++] = ' ';
+  }
+  }
+}
+
+// устанавливаем точность
+void add_precision(char *buf, options_sprintf *opt, long int var, int base) {
   long int len = s21_strlen(buf);
   long int def = opt->precision - len;
+
   while (def-- > 0) {
     buf[len++] = '0';
   }
@@ -195,7 +258,7 @@ int get_precision(const char **format, options_sprintf *opt, va_list *vl) {
     (*format) += 2;
   }
   printf("!!!!!    opt->precision %llu   !!! \n", opt->precision);
-  return 0;
+  return 0; 
 }
 
 // считываем спецификатор

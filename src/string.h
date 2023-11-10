@@ -216,7 +216,7 @@ typedef struct options_sprintf {
   int insert_zero;  //     '0' заполянет число нулями
 
   // widtd, len
-  s21_size_t width;  // ширина - минимальное количество печатаемых символов,
+  int width;  // ширина - минимальное количество печатаемых символов,
                      // если число меньше, то дополняется пробелами
   int precision;  // точность - минимальное количество записываемых цифр, если
                   // значение короче, то записывается нулями
@@ -247,7 +247,10 @@ int check_conflict_flags(options_sprintf *opt);
 int work_decimal(const char **format, options_sprintf *opt, char **str,
                  va_list *vl, char *buf);
 void s21_itoa(char *buf, options_sprintf *opt, long int var, int base);
-void edit_precision(char *buf, options_sprintf *opt, long int var, int base);
+void add_precision(char *buf, options_sprintf *opt, long int var, int base);
+void add_width(char *buf, options_sprintf *opt, long int var, int base);
+void save_buf_in_str (char **str, char *buf, options_sprintf *opt, long int var, int base);
+
 // преобразуем строку в число
 s21_size_t string_to_number(const char *start, int number_of_symbols);
 // // Переводит символ в число
