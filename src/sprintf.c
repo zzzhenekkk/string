@@ -55,8 +55,10 @@ int push_opt(const char **format, options_sprintf *opt, char **str,
 
 int get_specifiers_from_valist(const char **format, options_sprintf *opt,
                                char **str, va_list *vl) {
+  char buf [8100] = {0};   
+
   if (opt->specifiers == 'd' || opt->specifiers == 'i') {
-    print_decimal(format, opt, str, vl);
+    work_decimal(format, opt, str, vl, buf);
   } else if (opt->specifiers == 'u' || opt->specifiers == 'o' ||
              opt->specifiers == 'x' || opt->specifiers == 'X') {
     0;
@@ -65,8 +67,9 @@ int get_specifiers_from_valist(const char **format, options_sprintf *opt,
   return 0;
 }
 
-int print_decimal(const char **format, options_sprintf *opt, char **str,
-                  va_list *vl) {
+// печатаем  d или i
+int work_decimal(const char **format, options_sprintf *opt, char **str,
+                  va_list *vl, char * buf) {
   long int var_decimal;
   if (opt->length == 'h') {
     var_decimal = (short)va_arg(*vl, short);
@@ -76,8 +79,33 @@ int print_decimal(const char **format, options_sprintf *opt, char **str,
     var_decimal = (int)va_arg(*vl, int);
   }
 
+  s21_itoa(buf, var_decimal, 10);
+  strcat (str, buf);
+
+
+
+
   return 0;
 }
+
+
+void s21_itoa(char *buf, long int var, int base) {
+  int i = 0;
+  int negative = var < 0 ? 1 : 0;
+  var = var < 0 ? -var : var;
+  if (var == 0) {
+    buf[i++] = '0';
+  } else {
+    while (var > 0) {
+      buf[i++] = "0123456789abcdef"[var % base];
+      var /= base;
+    }
+  }
+  buf[i] = (negative) ? '-' : 0;
+}
+
+
+
 
 int check_conflict_flags(options_sprintf *opt) {
   // '+' ' ' => '+'

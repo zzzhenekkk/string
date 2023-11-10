@@ -165,6 +165,8 @@ int main() {
          buf26, buf27, buf28);
   printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n", buf3, buf32, buf33, buf34, buf35,
          buf36, buf37, buf38);
-  printf("%s", buf2);
+  printf("%s\n\n", buf2);
   printf("%s", buff1);
+
+
 }
