@@ -157,7 +157,8 @@ int main() {
           "-+ 06.4d '%-+ 06.4d'\n",
           -12, -12, -12, -12, -12, -12, -12, -12, -12, -12, -12, -12);
 
-  s21_sprintf(buff1, "Hello2 %#- #0*.*ld\n", 555, 667);
+  s21_sprintf(buff1, "Hello2 67 '%d' -67 '%d' 0 '%d' -0 '%d'\n", 67, -67, 0,
+              -0);
 
   printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n", buf1, buf12, buf13, buf14, buf15,
          buf16, buf17, buf18);
@@ -167,6 +168,4 @@ int main() {
          buf36, buf37, buf38);
   printf("%s\n\n", buf2);
   printf("%s", buff1);
-
-
 }
