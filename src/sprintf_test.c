@@ -172,7 +172,9 @@ s21_sprintf(buff2,
           "-+ 06.4d '%-+ 06.4d'\n",
           -12, -12, -12, -12, -12, -12, -12, -12, -12, -12, -12, -12);
 
-  s21_sprintf(buff1, ".4 '%.4d' 67 '%d' -67 '%d' 0 '%d' -0 '%d'\n", 67, 67, -67, 0,
+
+
+  s21_sprintf(buff1, "''''''%d'.4 '%.4d' 67 '%d' -67 '%d' 0 '%d' -0 '%d'\n", 0354, 67, 67, -67, 0,
               -0);
 
   printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n", buf1, buf12, buf13, buf14, buf15,
@@ -184,4 +186,8 @@ s21_sprintf(buff2,
          buf36, buf37, buf38);
   printf("%s\n\n", buf2);
   printf("%s", buff1);
+  printf ("ssss!%d!ssss", 010);
+  char buf [10] = {0};
+  s21_sprintf(buf, "%d", 010);
+  printf("%s", buf);
 }

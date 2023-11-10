@@ -78,7 +78,7 @@ int work_decimal(const char **format, options_sprintf *opt, char **str,
   long int var_decimal;
   if (opt->length == 'h') {
     var_decimal = (short)va_arg(*vl, short);
-  } else if (opt->length == 'l') {
+  } else if (opt->length == 'l') { // "%ld"
     var_decimal = (long int)va_arg(*vl, long int);
   } else {
     var_decimal = (int)va_arg(*vl, int);
@@ -90,9 +90,9 @@ int work_decimal(const char **format, options_sprintf *opt, char **str,
   // устанавливаем ширину
   add_width(buf, opt, var_decimal, 10);
   // впечатываем в буфер
-  save_buf_in_str (str, buf, opt, var_decimal, 10);
+  // save_buf_in_str (str, buf, opt, var_decimal, 10);
   strcat(*str, buf);
-  *str += strlen(buf);
+  // *str += strlen(buf);
   return 0;
 }
 
