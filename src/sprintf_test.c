@@ -56,6 +56,22 @@ int main() {
   static char buff38[500] = {0};
 
   static char buf4[500] = {0};
+  static char buf42[500] = {0};
+  static char buf43[500] = {0};
+  static char buf44[500] = {0};
+  static char buf45[500] = {0};
+  static char buf46[500] = {0};
+  static char buf47[500] = {0};
+  static char buf48[500] = {0};
+
+  static char buff4[500] = {0};
+  static char buff42[500] = {0};
+  static char buff43[500] = {0};
+  static char buff44[500] = {0};
+  static char buff45[500] = {0};
+  static char buff46[500] = {0};
+  static char buff47[500] = {0};
+  static char buff48[500] = {0};
 
   sprintf(buf1,
           "%d  1d '%1d'  .1d '%.1d'  4d '%4d'  .4d '%.4d'  4.6d '%4.6d'  6.4d "
@@ -311,10 +327,6 @@ int main() {
               "-06.4d '%-06.4d'\n",
               -12, -12, -12, -12, -12, -12, -12, -12, -12, -12, -12, -12);
 
-  // // s21_sprintf(buff1, "''''''%d'.4 '%.4d' 67 '%d' -67 '%d' 0 '%d' -0
-  // '%d'\n",
-  //             0354, 67, 67, -67, 0, -0);
-
   printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
          buf1, buff1, buf12, buff12, buf13, buff13, buf14, buff14, buf15,
          buff15, buf16, buff16, buf17, buff17, buf18, buff18);
@@ -330,5 +342,16 @@ int main() {
       buf36, buff36, buf37, buff37, buf38, buff38);
   printf("%s\n\n", buf2);
   printf("%s", buff1);
-  printf("ssss!%06.1d!ssss", 12);
+  printf("ssss!%06.1d!ssss\n\n", 12);
+
+  sprintf(buf4, "%+d 04d '%+04d' ' 04d''% 04d' +04.1d '%+04.1d'", 12, 12, 12,
+          12, 12);
+
+  s21_sprintf(buff4, "%+d 04d '%+04d' ' 04d''% 04d' +04.1d '%+04.1d'", 12, 12,
+              12, 12, 12);
+  // // s21_sprintf(buff1, "''''''%d'.4 '%.4d' 67 '%d' -67 '%d' 0 '%d' -0
+  // '%d'\n",
+  //             0354, 67, 67, -67, 0, -0);
+
+  printf("%s\n%s\n", buf4, buff4);
 }

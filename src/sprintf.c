@@ -99,6 +99,15 @@ void save_buf_in_str(char **str, char *buf, options_sprintf *opt, long int var,
     *((*str)++) = buf[len];
   }
 }
+// устанавливаем точность
+void add_precision(char *buf, options_sprintf *opt, long int var, int base) {
+  long int len = s21_strlen(buf);
+  long int def = opt->precision - len;
+
+  while (def-- > 0) {
+    buf[len++] = '0';
+  }
+}
 
 // устанавливаем ширину
 void add_width(char *buf, options_sprintf *opt, long int var, int base) {
@@ -108,24 +117,16 @@ void add_width(char *buf, options_sprintf *opt, long int var, int base) {
 
   long int len = s21_strlen(buf);
   // если у нас стоит флаг '0' - insert_zero, то мы дополняем ширину 0
-  if (opt->insert_zero) {
+  if (opt->insert_zero && !opt->precision) {
     long int def = opt->width - len;
     while (def-- > 0) {
-      buf[len] = opt->precision ? ' ' : '0';
-
-      if (def == 0 && (opt->negative || opt->show_sign || opt->leave_space)) {
-        flag_zero_znak = 1;
-        if (opt->negative) {
-          buf[len] = '-';
-        } else if (opt->show_sign) {
-          buf[len] = opt->negative ? '-' : '+';
-        } else if (opt->leave_space) {
-          buf[len] = ' ';
-        }
-      }
+      if (def == 0 && (opt->show_sign || opt->negative || opt->leave_space))
+        continue;
+      buf[len] = '0';
       len++;
     }
   }
+  len = s21_strlen(buf);
 
   // вставляем знак
   if (!flag_zero_znak) {
@@ -139,8 +140,9 @@ void add_width(char *buf, options_sprintf *opt, long int var, int base) {
   }
 
   len = s21_strlen(buf);
-  // вставляем пробелы если отсуствует в конце buf'-' - left_alignment
-  if (!opt->insert_zero && !opt->left_alignment) {
+
+  // вставляем пробелы если отсуствует в конце buf    '-' - left_alignment
+  if (!opt->left_alignment) {
     long int deff = opt->width - len;
     while (deff-- > 0) {
       buf[len++] = ' ';
@@ -148,7 +150,7 @@ void add_width(char *buf, options_sprintf *opt, long int var, int base) {
   }
 
   len = s21_strlen(buf);
-  // вставляем пробелы для left_alignment в начале buf и сдвигаем на deff вправо
+  // вставляем пробелы
   if (opt->left_alignment && opt->width > len) {
     long int deff_la = opt->width - len;
     while ((len--) + deff_la > 0) {
@@ -159,16 +161,6 @@ void add_width(char *buf, options_sprintf *opt, long int var, int base) {
       buf[len] = ' ';
       len++;
     }
-  }
-}
-
-// устанавливаем точность
-void add_precision(char *buf, options_sprintf *opt, long int var, int base) {
-  long int len = s21_strlen(buf);
-  long int def = opt->precision - len;
-
-  while (def-- > 0) {
-    buf[len++] = '0';
   }
 }
 
