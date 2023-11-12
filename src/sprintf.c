@@ -38,15 +38,10 @@ int parsing(const char **format, options_sprintf *opt, char **str,
 
 int get_opt(const char **format, options_sprintf *opt, char **str,
             va_list *vl) {
-  //-+' '#0
   get_flags(format, opt);
-  //-+0 12
-  //* s21_sprintf(buf, "%%", 'c');
   get_width(format, opt, vl);
   get_precision(format, opt, vl);
-  //hlL
   get_length(format, opt);
-  //cdieEfgGosuxXpn%
   get_specifiers(format, opt, vl);
   check_conflict_flags(opt);
 }
@@ -78,7 +73,7 @@ int work_decimal(const char **format, options_sprintf *opt, char **str,
   long int var_decimal;
   if (opt->length == 'h') {
     var_decimal = (short)va_arg(*vl, short);
-  } else if (opt->length == 'l') { // "%ld"
+  } else if (opt->length == 'l') {  // "%ld"
     var_decimal = (long int)va_arg(*vl, long int);
   } else {
     var_decimal = (int)va_arg(*vl, int);
@@ -90,52 +85,53 @@ int work_decimal(const char **format, options_sprintf *opt, char **str,
   // устанавливаем ширину
   add_width(buf, opt, var_decimal, 10);
   // впечатываем в буфер
-  // save_buf_in_str (str, buf, opt, var_decimal, 10);
-  strcat(*str, buf);
+  save_buf_in_str(str, buf, opt, var_decimal, 10);
+  // strcat(*str, buf);
   // *str += strlen(buf);
   return 0;
 }
 
-void save_buf_in_str (char **str, char *buf, options_sprintf *opt, long int var, int base) {
-  *str += s21_strlen(*str);
+void save_buf_in_str(char **str, char *buf, options_sprintf *opt, long int var,
+                     int base) {
+  // *str += s21_strlen(*str);
   long long int len = s21_strlen(buf);
-  while (len--) {
-    *(*str)=buf[len];
+  while (len-- > 0) {
+    *((*str)++) = buf[len];
   }
-
 }
 
 // устанавливаем ширину
 void add_width(char *buf, options_sprintf *opt, long int var, int base) {
-  // флаг костыль нужен для печатания знака в ширину если есть negative space or show_sign
-  int  flag_zero_znak = 0;
-
+  // флаг костыль нужен для печатания знака в ширину если есть negative space or
+  // show_sign
+  int flag_zero_znak = 0;
 
   long int len = s21_strlen(buf);
-  //если у нас стоит флаг '0' - insert_zero, то мы дополняем ширину 0
+  // если у нас стоит флаг '0' - insert_zero, то мы дополняем ширину 0
   if (opt->insert_zero) {
-  
-  long int def = opt->width - len;
+    long int def = opt->width - len;
     while (def-- > 0) {
-      buf[len] = '0';
-      if (def == 1 && (opt->negative || opt->show_sign || opt->leave_space)) {
+      buf[len] = opt->precision ? ' ' : '0';
+
+      if (def == 0 && (opt->negative || opt->show_sign || opt->leave_space)) {
         flag_zero_znak = 1;
-        if (opt->negative) {buf[len] = '-';}
-        else if (opt->show_sign) {
+        if (opt->negative) {
+          buf[len] = '-';
+        } else if (opt->show_sign) {
           buf[len] = opt->negative ? '-' : '+';
         } else if (opt->leave_space) {
           buf[len] = ' ';
         }
-      len++;
       }
+      len++;
     }
   }
-  
+
   // вставляем знак
   if (!flag_zero_znak) {
     if (opt->negative) {
       buf[len] = '-';
-    }  else if (opt->show_sign) {
+    } else if (opt->show_sign) {
       buf[len] = opt->negative ? '-' : '+';
     } else if (opt->leave_space) {
       buf[len] = ' ';
@@ -143,12 +139,26 @@ void add_width(char *buf, options_sprintf *opt, long int var, int base) {
   }
 
   len = s21_strlen(buf);
-  // вставляем пробелы
-  if (!opt->insert_zero) {
+  // вставляем пробелы если отсуствует в конце buf'-' - left_alignment
+  if (!opt->insert_zero && !opt->left_alignment) {
     long int deff = opt->width - len;
     while (deff-- > 0) {
       buf[len++] = ' ';
+    }
   }
+
+  len = s21_strlen(buf);
+  // вставляем пробелы для left_alignment в начале buf и сдвигаем на deff вправо
+  if (opt->left_alignment && opt->width > len) {
+    long int deff_la = opt->width - len;
+    while ((len--) + deff_la > 0) {
+      buf[len + deff_la] = buf[len];
+    }
+    len = 0;
+    while (len < deff_la) {
+      buf[len] = ' ';
+      len++;
+    }
   }
 }
 
@@ -188,7 +198,7 @@ int check_conflict_flags(options_sprintf *opt) {
 // считываем флаги "-+ #0"
 int get_flags(const char **format, options_sprintf *opt) {
   int long_flags = s21_strspn(*format, "-+ #0");
-  printf("!!!%s %llu!!!\n", *format, s21_strspn(*format, "-+ #0"));
+  // printf("!!!%s %llu!!!\n", *format, s21_strspn(*format, "-+ #0"));
   while (long_flags--) {
     switch (**format) {
       case '-':
@@ -228,7 +238,7 @@ int get_width(const char **format, options_sprintf *opt, va_list *vl) {
     opt->width = va_arg(*vl, int);
     (*format)++;
   }
-  printf("!!!!!    opt->width %llu   !!! \n", opt->width);
+  // printf("!!!!!    opt->width %llu   !!! \n", opt->width);
   return 0;
 }
 
@@ -257,8 +267,8 @@ int get_precision(const char **format, options_sprintf *opt, va_list *vl) {
     opt->precision = va_arg(*vl, int);
     (*format) += 2;
   }
-  printf("!!!!!    opt->precision %llu   !!! \n", opt->precision);
-  return 0; 
+  // printf("!!!!!    opt->precision %llu   !!! \n", opt->precision);
+  return 0;
 }
 
 // считываем спецификатор

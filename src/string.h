@@ -217,7 +217,7 @@ typedef struct options_sprintf {
 
   // widtd, len
   int width;  // ширина - минимальное количество печатаемых символов,
-                     // если число меньше, то дополняется пробелами
+              // если число меньше, то дополняется пробелами
   int precision;  // точность - минимальное количество записываемых цифр, если
                   // значение короче, то записывается нулями
   char length;  // h - short idouxX, l - long idouxX, L - double eEfgG
@@ -249,7 +249,8 @@ int work_decimal(const char **format, options_sprintf *opt, char **str,
 void s21_itoa(char *buf, options_sprintf *opt, long int var, int base);
 void add_precision(char *buf, options_sprintf *opt, long int var, int base);
 void add_width(char *buf, options_sprintf *opt, long int var, int base);
-void save_buf_in_str (char **str, char *buf, options_sprintf *opt, long int var, int base);
+void save_buf_in_str(char **str, char *buf, options_sprintf *opt, long int var,
+                     int base);
 
 // преобразуем строку в число
 s21_size_t string_to_number(const char *start, int number_of_symbols);
