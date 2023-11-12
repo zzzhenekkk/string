@@ -321,28 +321,7 @@ int main() {
           "-06.4d '%-06.4d'",
           -12, -12, -12, -12, -12, -12, -12, -12, -12, -12, -12, -12);
 
-  s21_sprintf(buff38,
-              "*****%d -01d '%-01d' -0.1d '%-0.1d' -04d '%-04d' -0.4d "
-              "'%-0.4d' -04.6d '%-04.6d' "
-              "-06.4d '%-06.4d'\n",
-              -12, -12, -12, -12, -12, -12, -12, -12, -12, -12, -12, -12);
 
-  printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
-         buf1, buff1, buf12, buff12, buf13, buff13, buf14, buff14, buf15,
-         buff15, buf16, buff16, buf17, buff17, buf18, buff18);
-
-  printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
-         buf2, buff2, buf22, buff22, buf23, buff23, buf24, buff24, buf25,
-         buff25, buf26, buff26, buf27, buff27, buf28, buff28);
-
-  printf(
-      "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%"
-      "s\n",
-      buf3, buff3, buf32, buff32, buf33, buff33, buf34, buff34, buf35, buff35,
-      buf36, buff36, buf37, buff37, buf38, buff38);
-  printf("%s\n\n", buf2);
-  printf("%s", buff1);
-  printf("ssss!%06.1d!ssss\n\n", 12);
 
   sprintf(buf4, "%+d 04d '%+04d' ' 04d''% 04d' +04.1d '%+04.1d'", 12, 12, 12,
           12, 12);
@@ -354,4 +333,9 @@ int main() {
   //             0354, 67, 67, -67, 0, -0);
 
   printf("%s\n%s\n", buf4, buff4);
+ // флаги +- #0
+ // ширина число 123
+ // точность .123
+ // длина h l L
+  printf("Hello %0.10d", 123);
 }

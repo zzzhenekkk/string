@@ -61,13 +61,30 @@ int get_specifiers_from_valist(const char **format, options_sprintf *opt,
     work_decimal(format, opt, str, vl, buf);
   } else if (opt->specifiers == 'u' || opt->specifiers == 'o' ||
              opt->specifiers == 'x' || opt->specifiers == 'X') {
-    0;
+    work_unsigned(format, opt, str, vl, buf);
   }
 
   return 0;
 }
+// 
+int work_unsigned(const char **format, options_sprintf *opt, char **str,
+                 va_list *vl, char *buf) {
+    unsigned long int var_decimal;
+  if (opt->length == 'h') {
+    var_decimal = (short)va_arg(*vl, short);
+  } else if (opt->length == 'l') {  // "%ld"
+    var_decimal = (long int)va_arg(*vl, long int);
+  } else {
+    var_decimal = (int)va_arg(*vl, int);
+  }
+    // функция считывает систему счисления
+    
+     // преобразует число в строку и записывает наоборот
+  s21_itoa(buf, opt, var_decimal, 10);
 
-// печатаем  d или i
+}
+
+// работаем с d или i
 int work_decimal(const char **format, options_sprintf *opt, char **str,
                  va_list *vl, char *buf) {
   long int var_decimal;
@@ -80,7 +97,7 @@ int work_decimal(const char **format, options_sprintf *opt, char **str,
   }
   // преобразует число в строку и записывает наоборот, со знаком!
   s21_itoa(buf, opt, var_decimal, 10);
-  // дополняет нулями, если есть ширина больше чем число
+  // дополняет нулями, если есть точность больше чем число
   add_precision(buf, opt, var_decimal, 10);
   // устанавливаем ширину
   add_width(buf, opt, var_decimal, 10);

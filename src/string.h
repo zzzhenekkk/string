@@ -226,7 +226,7 @@ typedef struct options_sprintf {
   char specifiers;
 
   // additionally, для удобства кодинга
-  int negative;  // негативное ли число
+  int negative;  // отрицительное ли число
 } options_sprintf;
 
 // Парсит данные и записывает в поля структуры.
