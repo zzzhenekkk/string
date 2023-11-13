@@ -227,6 +227,8 @@ typedef struct options_sprintf {
 
   // additionally, для удобства кодинга
   int negative;  // отрицительное ли число
+  int number_system; // система счисления
+
 } options_sprintf;
 
 // Парсит данные и записывает в поля структуры.
@@ -246,6 +248,8 @@ int get_specifiers_from_valist(const char **format, options_sprintf *opt,
 int check_conflict_flags(options_sprintf *opt);
 int work_decimal(const char **format, options_sprintf *opt, char **str,
                  va_list *vl, char *buf);
+int work_unsigned(const char **format, options_sprintf *opt, char **str,
+                  va_list *vl, char *buf);
 void s21_itoa(char *buf, options_sprintf *opt, long int var, int base);
 void add_precision(char *buf, options_sprintf *opt, long int var, int base);
 void add_width(char *buf, options_sprintf *opt, long int var, int base);
