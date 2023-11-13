@@ -349,15 +349,23 @@ int main() {
   printf("%s\n%s\n", buf4, buff4);
 
  static char test [500] = {0};
-    sprintf(test ,"Hello '%#012X'", 015);
+    sprintf(test ,"Hello '%#-12x'", 015);
     printf("%s\n", test);
 
  static char test2 [500] = {0};
-    s21_sprintf(test2 ,"Hello '%#012X'", 015);
+    s21_sprintf(test2 ,"Hello '%#-12x'", 015);
     printf("%s\n", test2);
 
+    static char test3 [500] = {0};
+        sprintf(test3 ,"Hello '%-010c'", 'e');
+        printf("%s\n", test3);
 
-  printf("Hello %#-10x\n", 0xAA);
-// обгуляются флаги для +' '
+    static char testt3 [500] = {0};
+        s21_sprintf(testt3 ,"Hello '%-010c'", 'e');
+        printf("%s\n", testt3);
+
+    // обгуляются флаги для +' '
+
+
   return 0;
 }

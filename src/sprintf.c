@@ -62,9 +62,22 @@ int get_specifiers_from_valist(const char **format, options_sprintf *opt,
   } else if (opt->specifiers == 'u' || opt->specifiers == 'o' ||
              opt->specifiers == 'x' || opt->specifiers == 'X') {
     work_unsigned(format, opt, str, vl, buf);
+  } else if (opt->specifiers == 'c') {
+    work_symbol(format, opt, str, vl, buf);
   }
 
   return 0;
+}
+
+void work_symbol(const char **format, options_sprintf *opt, char **str,
+                  va_list *vl, char *buf){
+    int symbol = (int)va_arg(*vl, int);
+    *buf = symbol;
+    add_precision(buf, opt);
+    // устанавливаем ширину
+    add_width(buf, opt);
+
+    save_buf_in_str(str, buf, opt);
 }
 
 int work_unsigned(const char **format, options_sprintf *opt, char **str,
@@ -83,12 +96,12 @@ int work_unsigned(const char **format, options_sprintf *opt, char **str,
   s21_itoa(buf, opt, var_decimal);
 
   // дополняет нулями, если есть точность больше чем число
-  add_precision(buf, opt, var_decimal, 10);
+  add_precision(buf, opt);
 
   // устанавливаем ширину
-  add_width(buf, opt, var_decimal, 10);
+  add_width(buf, opt);
 
-  save_buf_in_str(str, buf, opt, var_decimal, 10);
+  save_buf_in_str(str, buf, opt);
 }
 
 // работаем с d или i
@@ -105,27 +118,27 @@ int work_decimal(const char **format, options_sprintf *opt, char **str,
   // преобразует число в строку и записывает наоборот, со знаком!
   s21_itoa(buf, opt, var_decimal);
   // дополняет нулями, если есть точность больше чем число
-  add_precision(buf, opt, var_decimal, 10);
+  add_precision(buf, opt);
   // устанавливаем ширину
-  add_width(buf, opt, var_decimal, 10);
+  add_width(buf, opt);
   // впечатываем в буфер
-  save_buf_in_str(str, buf, opt, var_decimal, 10);
+  save_buf_in_str(str, buf, opt);
   // strcat(*str, buf);
   // *str += strlen(buf);
   return 0;
 }
 
-void save_buf_in_str(char **str, char *buf, options_sprintf *opt, long int var,
-                     int base) {
+void save_buf_in_str(char **str, char *buf, options_sprintf *opt) {
   // *str += s21_strlen(*str);
   long long int len = s21_strlen(buf);
   while (len-- > 0) {
     *((*str)++) = buf[len];
   }
+  
 }
 
 // устанавливаем точность
-void add_precision(char *buf, options_sprintf *opt, long int var, int base) {
+void add_precision(char *buf, options_sprintf *opt) {
   long int len = s21_strlen(buf);
   long int def = opt->precision - len;
 
@@ -144,7 +157,7 @@ void add_precision(char *buf, options_sprintf *opt, long int var, int base) {
 }
 
 // устанавливаем ширину
-void add_width(char *buf, options_sprintf *opt, long int var, int base) {
+void add_width(char *buf, options_sprintf *opt) {
   // флаг костыль нужен для печатания знака в ширину если есть negative space or
   // show_sign
   int flag_zero_znak = 0;
@@ -248,6 +261,13 @@ int check_conflict_flags(options_sprintf *opt) {
   if (opt->specifiers == 'd' || opt->specifiers == 'i') opt->base = 10;
   if (opt->specifiers == 'x' || opt->specifiers == 'X') opt->base = 16;
   if (opt->specifiers == 'o') opt->base = 8;
+
+  if (opt->specifiers == 'c') {
+    opt->show_sign = 0;
+    opt->leave_space = 0;
+    opt->insert_ox_dot = 0;
+    opt->precision = 0;
+  }
 }
 
 // считываем флаги "-+ #0"
