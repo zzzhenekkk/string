@@ -227,7 +227,7 @@ typedef struct options_sprintf {
 
   // additionally, для удобства кодинга
   int negative;  // отрицительное ли число
-  int number_system; // система счисления
+  int base;      // система счисления
 
 } options_sprintf;
 
@@ -250,7 +250,7 @@ int work_decimal(const char **format, options_sprintf *opt, char **str,
                  va_list *vl, char *buf);
 int work_unsigned(const char **format, options_sprintf *opt, char **str,
                   va_list *vl, char *buf);
-void s21_itoa(char *buf, options_sprintf *opt, long int var, int base);
+void s21_itoa(char *buf, options_sprintf *opt, long int var);
 void add_precision(char *buf, options_sprintf *opt, long int var, int base);
 void add_width(char *buf, options_sprintf *opt, long int var, int base);
 void save_buf_in_str(char **str, char *buf, options_sprintf *opt, long int var,
