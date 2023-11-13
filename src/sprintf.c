@@ -85,8 +85,6 @@ int work_unsigned(const char **format, options_sprintf *opt, char **str,
   // дополняет нулями, если есть точность больше чем число
   add_precision(buf, opt, var_decimal, 10);
 
-
-
   // устанавливаем ширину
   add_width(buf, opt, var_decimal, 10);
 
@@ -138,12 +136,11 @@ void add_precision(char *buf, options_sprintf *opt, long int var, int base) {
   // для спецификатора o чтобы дописать 0 если есть флаг #
   if (opt->specifiers == 'o') {
     len = s21_strlen(buf);
-    if (buf[len-1] != '0') {
+    if (buf[len - 1] != '0') {
       buf[len] = '0';
-      buf[len+1] = 0;
+      buf[len + 1] = 0;
     }
   }
-
 }
 
 // устанавливаем ширину
@@ -157,16 +154,16 @@ void add_width(char *buf, options_sprintf *opt, long int var, int base) {
   if (opt->insert_zero && !opt->precision) {
     long int def = opt->width - len;
     while (def-- > 0) {
-      if ((def == 0 && ((opt->show_sign || opt->negative || opt->leave_space) || (opt->insert_ox_dot && opt->base == 16))) || (def == 1 && (opt->insert_ox_dot && opt->base == 16)))
+      if ((def == 0 && ((opt->show_sign || opt->negative || opt->leave_space) ||
+                        (opt->insert_ox_dot && opt->base == 16))) ||
+          (def == 1 && (opt->insert_ox_dot && opt->base == 16)))
         continue;
       buf[len] = '0';
       len++;
     }
   }
 
-
   len = s21_strlen(buf);
-
 
   // вставляем знак
   if (!flag_zero_znak) {
@@ -179,14 +176,11 @@ void add_width(char *buf, options_sprintf *opt, long int var, int base) {
     }
   }
 
-
-  
   // вставляем 0x
   len = s21_strlen(buf);
   if (opt->insert_ox_dot && opt->base == 16) {
-    s21_strcat(buf, opt->specifiers == 'x'? "x0" : "X0");
+    s21_strcat(buf, opt->specifiers == 'x' ? "x0" : "X0");
   }
-
 
   len = s21_strlen(buf);
 
@@ -229,7 +223,8 @@ void s21_itoa(char *buf, options_sprintf *opt, long int var) {
     while (var > 0) {
       buf[i] = "0123456789abcdef"[var % opt->base];
       // если X большое, то и буквы в 16ти ричной системе большие
-      if (opt->specifiers == 'X' && i >= 10 && i <= 15) {
+      if (opt->specifiers == 'X' && ((var % opt->base) >= 10) &&
+          ((var % opt->base) <= 15)) {
         buf[i] -= 32;
       }
       var /= opt->base;
