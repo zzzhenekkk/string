@@ -72,53 +72,48 @@ int get_specifiers_from_valist(const char **format, options_sprintf *opt,
 }
 
 void work_str(const char **format, options_sprintf *opt, char **str,
-                  va_list *vl, char *buf){
-    char * str_arg = (char *)va_arg(*vl, char *);
-    if (str_arg) {
-      long long unsigned int len = s21_strlen(str_arg);
-      long long unsigned int len_d = len;
-      if (opt->width > len) len_d = opt->width;
-      if (opt->precision > len) len_d = opt->precision;
-      char * str_buf = calloc (sizeof(char),len_d + 30);
-        if (str_buf) {
-        
-        // Заполянем буфер
-         for (long long unsigned int i = 0; len--; i++) {
-            str_buf[i] = str_arg [len+1];
-         }
-            add_precision(str_buf, opt);
-            // устанавливаем ширину
-            add_width(str_buf, opt);
-
-            save_buf_in_str(str, str_buf, opt);
-
-
-
-         free (str_buf);
+              va_list *vl, char *buf) {
+  char *str_arg = (char *)va_arg(*vl, char *);
+  if (str_arg) {
+    long long unsigned int len = s21_strlen(str_arg);
+    long long unsigned int len_d = len;
+    if (opt->width > len) len_d = opt->width;
+    if (opt->precision > len) len_d = opt->precision;
+    // если мы указываем точность меньше чем длина строки, то строка уменьшается
+    if (opt->flag_for_s_precision) len = opt->precision;
+    char *str_buf = calloc(sizeof(char), len_d + 30);
+    if (str_buf) {
+      // Заполянем буфер
+      long long unsigned int i = 0;
+      while (len > 0) {
+        len--;
+        str_buf[i] = str_arg[len];
+        i++;
       }
+      add_precision(str_buf, opt);
+      // устанавливаем ширину
+      add_width(str_buf, opt);
 
+      save_buf_in_str(str, str_buf, opt);
 
-
-
-
-
-
-    } else {
-      ** str = 0;
+      free(str_buf);
     }
-    // printf("!!!%s!!!", str_arg);
+
+  } else {
+    **str = 0;
+  }
+  // printf("!!!%s!!!", str_arg);
 }
 
-
 void work_symbol(const char **format, options_sprintf *opt, char **str,
-                  va_list *vl, char *buf){
-    int symbol = (int)va_arg(*vl, int);
-    *buf = symbol;
-    add_precision(buf, opt);
-    // устанавливаем ширину
-    add_width(buf, opt);
+                 va_list *vl, char *buf) {
+  int symbol = (int)va_arg(*vl, int);
+  *buf = symbol;
+  add_precision(buf, opt);
+  // устанавливаем ширину
+  add_width(buf, opt);
 
-    save_buf_in_str(str, buf, opt);
+  save_buf_in_str(str, buf, opt);
 }
 
 int work_unsigned(const char **format, options_sprintf *opt, char **str,
@@ -175,7 +170,6 @@ void save_buf_in_str(char **str, char *buf, options_sprintf *opt) {
   while (len-- > 0) {
     *((*str)++) = buf[len];
   }
-
 }
 
 // устанавливаем точность
@@ -205,7 +199,8 @@ void add_width(char *buf, options_sprintf *opt) {
 
   long int len = s21_strlen(buf);
   // если у нас стоит флаг '0' - insert_zero, то мы дополняем ширину 0
-  if (opt->insert_zero && !opt->precision) {
+  if (opt->insert_zero && !opt->precision ||
+      (opt->insert_zero && opt->specifiers == 's')) {
     long int def = opt->width - len;
     while (def-- > 0) {
       if ((def == 0 && ((opt->show_sign || opt->negative || opt->leave_space) ||
@@ -303,11 +298,17 @@ int check_conflict_flags(options_sprintf *opt) {
   if (opt->specifiers == 'x' || opt->specifiers == 'X') opt->base = 16;
   if (opt->specifiers == 'o') opt->base = 8;
 
-  if (opt->specifiers == 'c' || opt->specifiers == 's') {
+  if (opt->specifiers == 'c') {
     opt->show_sign = 0;
     opt->leave_space = 0;
     opt->insert_ox_dot = 0;
     opt->precision = 0;
+  }
+
+  if (opt->specifiers == 's') {
+    opt->show_sign = 0;
+    opt->leave_space = 0;
+    opt->insert_ox_dot = 0;
   }
 }
 
@@ -377,11 +378,13 @@ int get_precision(const char **format, options_sprintf *opt, va_list *vl) {
     // printf("long precision %d\n", long_precision);
     opt->precision = string_to_number(*format, long_precision);
     *format += long_precision;
+    opt->flag_for_s_precision = 1;
     // нужно написать преоброзование строки в число
   } else if (**format == '.' && *(*format + 1) == '*') {
     // нужно дописать получение int из аргв
     opt->precision = va_arg(*vl, int);
     (*format) += 2;
+    opt->flag_for_s_precision = 1;
   }
   // printf("!!!!!    opt->precision %llu   !!! \n", opt->precision);
   return 0;

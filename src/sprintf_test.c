@@ -334,11 +334,9 @@ int main() {
          buf2, buff2, buf22, buff22, buf23, buff23, buf24, buff24, buf25,
          buff25, buf26, buff26, buf27, buff27, buf28, buff28);
 
-  printf(
-      "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
-      buf3, buff3, buf32, buff32, buf33, buff33, buf34, buff34, buf35, buff35,
-      buf36, buff36, buf37, buff37, buf38, buff38);
-
+  printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+         buf3, buff3, buf32, buff32, buf33, buff33, buf34, buff34, buf35,
+         buff35, buf36, buff36, buf37, buff37, buf38, buff38);
 
   sprintf(buf4, "%+d 04d '%+04d' ' 04d''% 04d' +04.1d '%+04.1d'", 12, 12, 12,
           12, 12);
@@ -348,33 +346,30 @@ int main() {
 
   printf("%s\n%s\n", buf4, buff4);
 
- static char test [500] = {0};
-    sprintf(test ,"Hello '%#-12x'", 015);
-    printf("%s\n", test);
+  static char test[500] = {0};
+  sprintf(test, "Hello '%#-12x'", 015);
+  printf("%s\n", test);
 
- static char test2 [500] = {0};
-    s21_sprintf(test2 ,"Hello '%#-12x'", 015);
-    printf("%s\n", test2);
+  static char test2[500] = {0};
+  s21_sprintf(test2, "Hello '%#-12x'", 015);
+  printf("%s\n", test2);
 
+  static char test3[500] = {0};
+  sprintf(test3, "Hello '%-010c'", 'e');
+  printf("%s\n", test3);
 
-    static char test3 [500] = {0};
-        sprintf(test3 ,"Hello '%-010c'", 'e');
-        printf("%s\n", test3);
+  static char testt3[500] = {0};
+  s21_sprintf(testt3, "Hello '%-010c'", 'e');
+  printf("%s\n", testt3);
 
-    static char testt3 [500] = {0};
-        s21_sprintf(testt3 ,"Hello '%-010c'", 'e');
-        printf("%s\n", testt3);
+  static char test4[500] = {0};
+  sprintf(test3, "11Hello '%010.1s'", "Sok");
+  printf("%s\n", test3);
 
-
-static char test4 [500] = {0};
-    sprintf(test3 ,"11Hello '%010s'", "SoS");
-    printf("%s\n", test3);
-
-static char testt4 [500] = {0};
-    s21_sprintf(testt3 ,"22Hello '%s'", "SoS");
-    printf("%s\n", testt3);
-    // обгуляются флаги для +' '
-
+  static char testt4[500] = {0};
+  s21_sprintf(testt4, "11Hello '%010.1s'", "Sok");
+  printf("%s\n", testt4);
+  // обгуляются флаги для +' '
 
   return 0;
 }

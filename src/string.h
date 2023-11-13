@@ -216,8 +216,8 @@ typedef struct options_sprintf {
   // нули не удаляются
 
   // widtd, len
-  int width;      // ширина - минимальное количество печатаемых символов,
-                  // если число меньше, то дополняется пробелами
+  int width;  // ширина - минимальное количество печатаемых символов,
+              // если число меньше, то дополняется пробелами
   int precision;  // точность - минимальное количество записываемых цифр, если
                   // значение короче, то записывается нулями
   char length;  // h - short idouxX, l - long idouxX, L - double eEfgG
@@ -228,6 +228,7 @@ typedef struct options_sprintf {
   // additionally, для удобства кодинга
   int negative;  // отрицительное ли число
   int base;      // система счисления
+  int flag_for_s_precision;
 
 } options_sprintf;
 
@@ -246,13 +247,14 @@ int get_specifiers_from_valist(const char **format, options_sprintf *opt,
                                char **str, va_list *vl);
 int check_conflict_flags(options_sprintf *opt);
 void work_str(const char **format, options_sprintf *opt, char **str,
-                  va_list *vl, char *buf);
+              va_list *vl, char *buf);
 int work_decimal(const char **format, options_sprintf *opt, char **str,
                  va_list *vl, char *buf);
 int work_unsigned(const char **format, options_sprintf *opt, char **str,
                   va_list *vl, char *buf);
 
-void work_symbol (const char **format, options_sprintf *opt, char **str, va_list *vl, char *buf);
+void work_symbol(const char **format, options_sprintf *opt, char **str,
+                 va_list *vl, char *buf);
 
 void s21_itoa(char *buf, options_sprintf *opt, long int var);
 void add_precision(char *buf, options_sprintf *opt);
