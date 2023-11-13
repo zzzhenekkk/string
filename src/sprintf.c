@@ -66,21 +66,29 @@ int get_specifiers_from_valist(const char **format, options_sprintf *opt,
 
   return 0;
 }
-// 
+
 int work_unsigned(const char **format, options_sprintf *opt, char **str,
                  va_list *vl, char *buf) {
     unsigned long int var_decimal;
   if (opt->length == 'h') {
-    var_decimal = (short)va_arg(*vl, short);
+    var_decimal = (unsigned short)va_arg(*vl,unsigned short);
   } else if (opt->length == 'l') {  // "%ld"
-    var_decimal = (long int)va_arg(*vl, long int);
+    var_decimal = (unsigned long int)va_arg(*vl, unsigned long int);
   } else {
-    var_decimal = (int)va_arg(*vl, int);
+    var_decimal = (unsigned int)va_arg(*vl, unsigned int);
   }
-    // функция считывает систему счисления
+    // обнуляются
     
      // преобразует число в строку и записывает наоборот
   s21_itoa(buf, opt, var_decimal, 10);
+
+    // дополняет нулями, если есть точность больше чем число
+  add_precision(buf, opt, var_decimal, 10);
+
+  // устанавливаем ширину
+  add_width(buf, opt, var_decimal, 10);
+
+  save_buf_in_str(str, buf, opt, var_decimal, 10);
 
 }
 
@@ -116,6 +124,7 @@ void save_buf_in_str(char **str, char *buf, options_sprintf *opt, long int var,
     *((*str)++) = buf[len];
   }
 }
+
 // устанавливаем точность
 void add_precision(char *buf, options_sprintf *opt, long int var, int base) {
   long int len = s21_strlen(buf);
@@ -185,13 +194,23 @@ void add_width(char *buf, options_sprintf *opt, long int var, int base) {
 void s21_itoa(char *buf, options_sprintf *opt, long int var, int base) {
   int i = 0;
   opt->negative = var < 0 ? 1 : 0;
+  // это нужно для unsigned
+  if (s21_strchr("oxXu", opt->specifiers)) {
+    opt->negative = 0;
+  }
+
   var = var < 0 ? -var : var;
   if (var == 0) {
     buf[i++] = '0';
   } else {
     while (var > 0) {
-      buf[i++] = "0123456789abcdef"[var % base];
+      buf[i] = "0123456789abcdef"[var % base];
+      // если X большое, то и буквы в 16ти ричной системе большие
+      if (opt->specifiers == 'X' && buf[i] >= 10 && buf [i] <= 15) {
+        buf[i] -= 32;
+      }
       var /= base;
+      i++;
     }
   }
   buf[i] = 0;
@@ -202,6 +221,12 @@ int check_conflict_flags(options_sprintf *opt) {
   if (opt->show_sign && opt->leave_space) opt->leave_space = 0;
   // '-' '0' => '-'
   if (opt->left_alignment && opt->insert_zero) opt->insert_zero = 0;
+
+  // для вот этих специкаторов oxXu не нужны флаги +' '
+  if (s21_strchr("oxXu", opt->specifiers)) {
+    opt->show_sign = 0;
+    opt->leave_space = 0;
+  }
 }
 
 // считываем флаги "-+ #0"
