@@ -244,13 +244,16 @@ int push_opt(const char **format, options_sprintf *opt, char **str,
              va_list *vl);
 int get_specifiers_from_valist(const char **format, options_sprintf *opt,
                                char **str, va_list *vl);
-
 int check_conflict_flags(options_sprintf *opt);
+void work_str(const char **format, options_sprintf *opt, char **str,
+                  va_list *vl, char *buf);
 int work_decimal(const char **format, options_sprintf *opt, char **str,
                  va_list *vl, char *buf);
 int work_unsigned(const char **format, options_sprintf *opt, char **str,
                   va_list *vl, char *buf);
-void work_symbol(format, opt, str, vl, buf);
+
+void work_symbol (const char **format, options_sprintf *opt, char **str, va_list *vl, char *buf);
+
 void s21_itoa(char *buf, options_sprintf *opt, long int var);
 void add_precision(char *buf, options_sprintf *opt);
 void add_width(char *buf, options_sprintf *opt);

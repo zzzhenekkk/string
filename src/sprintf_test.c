@@ -356,6 +356,7 @@ int main() {
     s21_sprintf(test2 ,"Hello '%#-12x'", 015);
     printf("%s\n", test2);
 
+
     static char test3 [500] = {0};
         sprintf(test3 ,"Hello '%-010c'", 'e');
         printf("%s\n", test3);
@@ -364,6 +365,14 @@ int main() {
         s21_sprintf(testt3 ,"Hello '%-010c'", 'e');
         printf("%s\n", testt3);
 
+
+static char test4 [500] = {0};
+    sprintf(test3 ,"11Hello '%010s'", "SoS");
+    printf("%s\n", test3);
+
+static char testt4 [500] = {0};
+    s21_sprintf(testt3 ,"22Hello '%s'", "SoS");
+    printf("%s\n", testt3);
     // обгуляются флаги для +' '
 
 

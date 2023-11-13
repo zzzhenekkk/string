@@ -64,10 +64,51 @@ int get_specifiers_from_valist(const char **format, options_sprintf *opt,
     work_unsigned(format, opt, str, vl, buf);
   } else if (opt->specifiers == 'c') {
     work_symbol(format, opt, str, vl, buf);
+  } else if (opt->specifiers == 's') {
+    work_str(format, opt, str, vl, buf);
   }
 
   return 0;
 }
+
+void work_str(const char **format, options_sprintf *opt, char **str,
+                  va_list *vl, char *buf){
+    char * str_arg = (char *)va_arg(*vl, char *);
+    if (str_arg) {
+      long long unsigned int len = s21_strlen(str_arg);
+      long long unsigned int len_d = len;
+      if (opt->width > len) len_d = opt->width;
+      if (opt->precision > len) len_d = opt->precision;
+      char * str_buf = calloc (sizeof(char),len_d + 30);
+        if (str_buf) {
+        
+        // Заполянем буфер
+         for (long long unsigned int i = 0; len--; i++) {
+            str_buf[i] = str_arg [len+1];
+         }
+            add_precision(str_buf, opt);
+            // устанавливаем ширину
+            add_width(str_buf, opt);
+
+            save_buf_in_str(str, str_buf, opt);
+
+
+
+         free (str_buf);
+      }
+
+
+
+
+
+
+
+    } else {
+      ** str = 0;
+    }
+    // printf("!!!%s!!!", str_arg);
+}
+
 
 void work_symbol(const char **format, options_sprintf *opt, char **str,
                   va_list *vl, char *buf){
@@ -130,11 +171,11 @@ int work_decimal(const char **format, options_sprintf *opt, char **str,
 
 void save_buf_in_str(char **str, char *buf, options_sprintf *opt) {
   // *str += s21_strlen(*str);
-  long long int len = s21_strlen(buf);
+  long long unsigned int len = s21_strlen(buf);
   while (len-- > 0) {
     *((*str)++) = buf[len];
   }
-  
+
 }
 
 // устанавливаем точность
@@ -262,7 +303,7 @@ int check_conflict_flags(options_sprintf *opt) {
   if (opt->specifiers == 'x' || opt->specifiers == 'X') opt->base = 16;
   if (opt->specifiers == 'o') opt->base = 8;
 
-  if (opt->specifiers == 'c') {
+  if (opt->specifiers == 'c' || opt->specifiers == 's') {
     opt->show_sign = 0;
     opt->leave_space = 0;
     opt->insert_ox_dot = 0;
