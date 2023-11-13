@@ -349,11 +349,11 @@ int main() {
   printf("%s\n%s\n", buf4, buff4);
 
  static char test [500] = {0};
-    sprintf(test ,"Hello %x", 0xAA);
+    sprintf(test ,"Hello '%10x'", 0xAA);
     printf("%s\n", test);
 
  static char test2 [500] = {0};
-    s21_sprintf(test2 ,"Hello %x", 0xAA);
+    s21_sprintf(test2 ,"Hello '%10x'", 0xAA);
     printf("%s\n", test2);
 
 
