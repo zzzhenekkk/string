@@ -363,11 +363,11 @@ int main() {
   printf("%s\n", testt3);
 
   static char test4[500] = {0};
-  sprintf(test3, "11Hello '%010.1s'", "Sok");
+  sprintf(test3, "11Hello '%-10.4s'", "Sok");
   printf("%s\n", test3);
 
   static char testt4[500] = {0};
-  s21_sprintf(testt4, "11Hello '%010.1s'", "Sok");
+  s21_sprintf(testt4, "11Hello '%-10.4s'", "Sok");
   printf("%s\n", testt4);
   // обгуляются флаги для +' '
 
