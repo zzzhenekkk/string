@@ -17,7 +17,7 @@ int s21_sprintf(char *str, const char *format, ...) {
       format++;
       // сюда записываем все флаги и значения для спецификатора
       options_sprintf opt = {0};
-      parsing(&format, &opt, &str, &vl);
+      parsing(&format, &opt, &str, &vl, str_begin);
     }
   }
   va_end(vl);
@@ -28,10 +28,10 @@ int s21_sprintf(char *str, const char *format, ...) {
 // format форматная строка со спецификаторами
 // перебираем все после процента
 int parsing(const char **format, options_sprintf *opt, char **str,
-            va_list *vl) {
+            va_list *vl, char *str_begin) {
   // получаем всю информацию из под %
   get_opt(format, opt, str, vl);
-  push_opt(format, opt, str, vl);
+  push_opt(format, opt, str, vl, str_begin);
   // не забудем вернуть формат увелеченный на количество
   return 0;
 }
@@ -46,15 +46,8 @@ int get_opt(const char **format, options_sprintf *opt, char **str,
   check_conflict_flags(opt);
 }
 
-int push_opt(const char **format, options_sprintf *opt, char **str,
-             va_list *vl) {
-  get_specifiers_from_valist(format, opt, str, vl);
-
-  return 0;
-}
-
-int get_specifiers_from_valist(const char **format, options_sprintf *opt,
-                               char **str, va_list *vl) {
+int push_opt(const char **format, options_sprintf *opt,
+                               char **str, va_list *vl, char *str_begin) {
   char buf[8100] = {0};
 
   if (opt->specifiers == 'd' || opt->specifiers == 'i') {
@@ -66,9 +59,44 @@ int get_specifiers_from_valist(const char **format, options_sprintf *opt,
     work_symbol(format, opt, str, vl, buf);
   } else if (opt->specifiers == 's') {
     work_str(format, opt, str, vl, buf);
-  }
+  } else if (opt->specifiers == 'p') {
+    work_unsigned(format, opt, str, vl, buf);
+  } else if (opt->specifiers == 'n') {
+    long long int * n = (long long int *) va_arg(*vl, long long int *);
+    *n = (long long int)(*str-str_begin);
+  } else if (opt->specifiers == '%') {
+    work_percent(format, opt, str, vl, buf);
+  } else if (opt->specifiers == 'f' || opt->specifiers == 'F') {
+    work_double(format, opt, str, vl, buf);
+  } 
 
   return 0;
+}
+
+void work_double(const char **format, options_sprintf *opt, char **str,
+              va_list *vl, char *buf) {
+   long double var_decimal = 0;
+  if (opt->length == 'L') {
+    var_decimal = (long double)va_arg(*vl, long double);
+  } else {
+    var_decimal = (double)va_arg(*vl, double);
+  }
+
+
+
+
+}
+
+
+
+work_percent(const char **format, options_sprintf *opt, char **str,
+              va_list *vl, char *buf) {
+  *buf = '%';
+  add_precision(buf, opt);
+  // устанавливаем ширину
+  add_width(buf, opt);
+
+  save_buf_in_str(str, buf, opt);
 }
 
 void work_str(const char **format, options_sprintf *opt, char **str,
@@ -295,6 +323,7 @@ int check_conflict_flags(options_sprintf *opt) {
   }
   if (opt->specifiers == 'd' || opt->specifiers == 'i') opt->base = 10;
   if (opt->specifiers == 'x' || opt->specifiers == 'X') opt->base = 16;
+  if (opt->specifiers == 'p') opt->base = 16;
   if (opt->specifiers == 'o') opt->base = 8;
 
   if (opt->specifiers == 'c') {
@@ -309,6 +338,22 @@ int check_conflict_flags(options_sprintf *opt) {
     opt->leave_space = 0;
     opt->insert_ox_dot = 0;
   }
+
+  if (opt->specifiers == 'p') {
+    opt->insert_ox_dot = 1;
+    opt->show_sign = 0;
+    opt->leave_space = 0;
+    opt->length = 'l';
+    opt->specifiers = 'x';
+  }
+
+  if (opt->specifiers == '%') {
+    opt->show_sign = 0;
+    opt->leave_space = 0;
+    opt->insert_ox_dot = 0;
+    opt->precision = 0;
+  }
+
 }
 
 // считываем флаги "-+ #0"

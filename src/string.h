@@ -233,7 +233,7 @@ typedef struct options_sprintf {
 } options_sprintf;
 
 // Парсит данные и записывает в поля структуры.
-int parsing(const char **format, options_sprintf *opt, char **str, va_list *vl);
+int parsing(const char **format, options_sprintf *opt, char **str, va_list *vl, char *str_begin);
 int get_opt(const char **format, options_sprintf *opt, char **str, va_list *vl);
 int get_flags(const char **format, options_sprintf *opt);
 int get_width(const char **format, options_sprintf *opt, va_list *vl);
@@ -242,10 +242,14 @@ int get_length(const char **format, options_sprintf *opt);
 int get_specifiers(const char **format, options_sprintf *opt, va_list *vl);
 
 int push_opt(const char **format, options_sprintf *opt, char **str,
-             va_list *vl);
-int get_specifiers_from_valist(const char **format, options_sprintf *opt,
-                               char **str, va_list *vl);
+             va_list *vl, char *str_begin);
+
 int check_conflict_flags(options_sprintf *opt);
+
+
+
+void work_double(const char **format, options_sprintf *opt, char **str,
+              va_list *vl, char *buf);
 void work_str(const char **format, options_sprintf *opt, char **str,
               va_list *vl, char *buf);
 int work_decimal(const char **format, options_sprintf *opt, char **str,

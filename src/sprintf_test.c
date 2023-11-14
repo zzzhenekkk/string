@@ -363,13 +363,46 @@ int main() {
   printf("%s\n", testt3);
 
   static char test4[500] = {0};
-  sprintf(test3, "11Hello '%-1s'", "Sok");
+  sprintf(test3, "11Hello '%s'", "Sok");
   printf("%s\n", test3);
 
   static char testt4[500] = {0};
-  s21_sprintf(testt4, "11Hello '%-1s'", "Sok");
+  s21_sprintf(testt4, "11Hello '%s'", "Sok");
   printf("%s\n", testt4);
   // обгуляются флаги для +' '
+
+  static char test5[500] = {0};
+  sprintf(test5, "11Hello '%+20.1p'", &test4);
+  printf("%s\n", test5);
+
+  static char testt5[500] = {0};
+  s21_sprintf(testt5, "11Hello '%+20.1p'", &test4);
+  printf("%s\n", testt5);
+  // обгуляются флаги для +' '
+
+
+int n = 0;
+int n2 = 0;
+
+  static char test6[500] = {0};
+  sprintf(test6, "11Hello '%p' %n", &test4, &n);
+  printf("%s %d\n", test6, n);
+
+  static char testt6[500] = {0};
+  s21_sprintf(testt6, "11Hello '%p' %n", &test4, &n2);
+  printf("%s %d\n", testt6, n2);
+  // обгуляются флаги для +' '
+
+
+  static char test7[500] = {0};
+  sprintf(test7, "11Hello '%-08%'", &test);
+  printf("%s\n", test7);
+
+  static char testt7[500] = {0};
+  s21_sprintf(testt7, "11Hello '%-08%'", &test4);
+  printf("%s\n", testt7);
+  // обгуляются флаги для +' '
+
 
   return 0;
 }

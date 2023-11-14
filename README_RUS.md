@@ -100,7 +100,7 @@
 <!-- | 17 | char *strrchr(const char *str, int c) | Выполняет поиск последнего вхождения символа c (беззнаковый тип) в строке, на которую указывает аргумент str. | -->
 <!-- | 18 | size_t strspn(const char *str1, const char *str2) | Вычисляет длину начального сегмента str1, который полностью состоит из символов str2. | -->
 <!-- | 19 | char *strstr(const char *haystack, const char *needle) | Находит первое вхождение всей строки needle (не включая завершающий нулевой символ), которая появляется в строке haystack. | -->
-<!-- | 20 | char *strtok(char *str, const char *delim) | Разбивает строку str на ряд токенов, разделенных delim. | -->
+| 20 | char *strtok(char *str, const char *delim) | Разбивает строку str на ряд токенов, разделенных delim. |
 
 ### sprintf and sscanf
 
