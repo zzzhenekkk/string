@@ -80,7 +80,7 @@ void work_str(const char **format, options_sprintf *opt, char **str,
     if (opt->width > len) len_d = opt->width;
     if (opt->precision > len) len_d = opt->precision;
     // если мы указываем точность меньше чем длина строки, то строка уменьшается
-    if (opt->flag_for_s_precision) len = opt->precision;
+    if (opt->flag_for_s_precision && opt->precision < len) len = opt->precision;
     char *str_buf = calloc(sizeof(char), len_d + 30);
     if (str_buf) {
       // Заполянем буфер
@@ -176,11 +176,10 @@ void save_buf_in_str(char **str, char *buf, options_sprintf *opt) {
 void add_precision(char *buf, options_sprintf *opt) {
   long int len = s21_strlen(buf);
   long int def = opt->precision - len;
-
-  while (def-- > 0) {
-    buf[len++] = '0';
-  }
-
+  if (opt->specifiers != 's')
+    while (def-- > 0) {
+      buf[len++] = '0';
+    }
   // для спецификатора o чтобы дописать 0 если есть флаг #
   if (opt->specifiers == 'o') {
     len = s21_strlen(buf);
