@@ -228,13 +228,14 @@ typedef struct options_sprintf {
   // additionally, для удобства кодинга
   int negative;  // отрицительное ли число
   int base;      // система счисления
-  int flag_for_s_precision; // костыль для точности спецификатора s
-  int negative_presicion; // костыль для отрицательной точности 
+  int is_precision;  // введена ли точность, нужна так как
+  int negative_presicion;  // костыль для отрицательной точности
 
 } options_sprintf;
 
 // Парсит данные и записывает в поля структуры.
-int parsing(const char **format, options_sprintf *opt, char **str, va_list *vl, char *str_begin);
+int parsing(const char **format, options_sprintf *opt, char **str, va_list *vl,
+            char *str_begin);
 int get_opt(const char **format, options_sprintf *opt, char **str, va_list *vl);
 int get_flags(const char **format, options_sprintf *opt);
 int get_width(const char **format, options_sprintf *opt, va_list *vl);
@@ -242,15 +243,15 @@ int get_precision(const char **format, options_sprintf *opt, va_list *vl);
 int get_length(const char **format, options_sprintf *opt);
 int get_specifiers(const char **format, options_sprintf *opt, va_list *vl);
 
-int push_opt(const char **format, options_sprintf *opt, char **str,
-             va_list *vl, char *str_begin);
+int push_opt(const char **format, options_sprintf *opt, char **str, va_list *vl,
+             char *str_begin);
 
 int check_conflict_flags(options_sprintf *opt);
 
-
-
 void work_double(const char **format, options_sprintf *opt, char **str,
-              va_list *vl, char *buf);
+                 va_list *vl, char *buf);
+void work_percent(const char **format, options_sprintf *opt, char **str,
+                  va_list *vl, char *buf);
 void work_str(const char **format, options_sprintf *opt, char **str,
               va_list *vl, char *buf);
 int work_decimal(const char **format, options_sprintf *opt, char **str,
@@ -261,6 +262,8 @@ int work_unsigned(const char **format, options_sprintf *opt, char **str,
 void work_symbol(const char **format, options_sprintf *opt, char **str,
                  va_list *vl, char *buf);
 
+void itoa_and_precision_for_f(char *buf, options_sprintf *opt,
+                              long double var_double);
 void s21_itoa(char *buf, options_sprintf *opt, long int var);
 void add_precision(char *buf, options_sprintf *opt);
 void add_width(char *buf, options_sprintf *opt);
@@ -268,63 +271,8 @@ void save_buf_in_str(char **str, char *buf, options_sprintf *opt);
 
 // преобразуем строку в число
 s21_size_t string_to_number(const char *start, int number_of_symbols);
-// // Переводит символ в число
-// int s21_virtual_num(int num, char ch_num);
-
-// // Ищет флаги, длину, ширину, точность
-// int s21_post_parse(char spec, char *parse_buff, char *identify_buff, char
-// *buffer, va_list arg);
 
 // Записывает строку в буфер
 int s21_sprintf(char *str, const char *format, ...);
-
-// // Ищет спецификаторы
-// void s21_parse(char *buffer, const char *str, va_list arg);
-
-// // Записывает символ в буфер
-// void s21_char(char *buff, int c, options *OP);
-
-// // Идентифицирует флаг
-// void s21_identify(char *buff, options *OP, va_list arg);
-
-// // Обрабатывает точку
-// int s21_dot(char *parse_buff, char *numbers, options *OP);
-
-// // Записывает строку в буфер
-// void s21_putstr(char *buffer, char *str, options *OP);
-
-// // Записывает число в буфер
-// void s21_putnbr(char *buffer, long long int n, options *OP);
-
-// // Разбивает число на символы
-// char *s21_itoa(int num, char *buffer, int base, options *OP);
-
-// // Разбивает длинное число на символы
-// char *s21_long_itoa(long long int num, char *buffer, int base, options *OP);
-
-// // Разбивает короткое число на символы
-// char *s21_short_itoa(short int num, char *buffer, int base, options *OP);
-
-// // Записывает беззнаковое число в буфер
-// void s21_put_unsigned_nbr(char *buffer, unsigned long long int n, options
-// *OP);
-
-// // Разбивает беззнаковое число на символы
-// char *s21_utoa(unsigned int n, options *OP);
-
-// // Разбивает длинное беззнаковое число на символы
-// char *s21_long_utoa(unsigned long long int n, options *OP);
-
-// // Разбивает короткое беззнаковое число на символы
-// char *s21_short_utoa(unsigned short int n, options *OP);
-
-// // Записывает вещественное число в буфер
-// void s21_putdbl(char *res, double n, options *OP);
-
-// // Преобразует число с плавающей точкой в строку
-// char *s21_gcvt(double f, s21_size_t ndigit, char *buf, options *OP);
-
-// // Меняет последовательность в обратную сторону
-// void s21_reverse(char *buffer, int len);
 
 #endif  // SRC_S21_STRING_H_

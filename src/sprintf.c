@@ -27,8 +27,8 @@ int s21_sprintf(char *str, const char *format, ...) {
 // str куда записываем
 // format форматная строка со спецификаторами
 // перебираем все после процента
-int parsing(const char **format, options_sprintf *opt, char **str,
-            va_list *vl, char *str_begin) {
+int parsing(const char **format, options_sprintf *opt, char **str, va_list *vl,
+            char *str_begin) {
   // получаем всю информацию из под %
   get_opt(format, opt, str, vl);
   push_opt(format, opt, str, vl, str_begin);
@@ -46,8 +46,8 @@ int get_opt(const char **format, options_sprintf *opt, char **str,
   check_conflict_flags(opt);
 }
 
-int push_opt(const char **format, options_sprintf *opt,
-                               char **str, va_list *vl, char *str_begin) {
+int push_opt(const char **format, options_sprintf *opt, char **str, va_list *vl,
+             char *str_begin) {
   char buf[8100] = {0};
 
   if (opt->specifiers == 'd' || opt->specifiers == 'i') {
@@ -62,85 +62,80 @@ int push_opt(const char **format, options_sprintf *opt,
   } else if (opt->specifiers == 'p') {
     work_unsigned(format, opt, str, vl, buf);
   } else if (opt->specifiers == 'n') {
-    long long int * n = (long long int *) va_arg(*vl, long long int *);
-    *n = (long long int)(*str-str_begin);
+    long long int *n = (long long int *)va_arg(*vl, long long int *);
+    *n = (long long int)(*str - str_begin);
   } else if (opt->specifiers == '%') {
     work_percent(format, opt, str, vl, buf);
   } else if (opt->specifiers == 'f' || opt->specifiers == 'F') {
     work_double(format, opt, str, vl, buf);
-  } 
+  }
 
   return 0;
 }
 
 void work_double(const char **format, options_sprintf *opt, char **str,
-              va_list *vl, char *buf) {
-   long double var_double = 0;
+                 va_list *vl, char *buf) {
+  long double var_double = 0;
   if (opt->length == 'L') {
     var_double = (long double)va_arg(*vl, long double);
   } else {
     var_double = (double)va_arg(*vl, double);
   }
-  // для точности -1 
-  if (opt->precision == -1) {
-    var_double = roundl(var_double);
-  }
 
+  itoa_and_precision_for_f(buf, opt, var_double);
+  add_width(buf, opt);
+  save_buf_in_str(str, buf, opt);
+}
+
+void itoa_and_precision_for_f(char *buf, options_sprintf *opt,
+                              long double var_double) {
+  // для точности -1
+  if (opt->precision == -1) var_double = roundl(var_double);
+  // если не введена точность, то по умолчанию 6
+  if (!opt->is_precision) opt->precision = 6;
 
   // отрицательное ли число
   opt->negative = var_double < 0 ? 1 : 0;
+  var_double = var_double < 0 ? -var_double : var_double;
 
-  // разделяет число на целую и дробную часть, left - целая, right - дробная
+  // разделяем число на целую и дробную часть, left - целая, right - дробная
   long double left = 0;
   long double right = modfl(var_double, &left);
-
 
   long long lleft = left;
   char left_str[50] = {'\0'};
   char right_str[50] = {'\0'};
 
-  // для установления точности числа 
+  // для установления точности числа, вначале переводим его в целую часть, до
+  // указанной точности
   for (int i = 0; i < opt->precision; i++) {
     right *= 10;
   }
-  long long rright = roundl(right); // roundl - округление до ближайшего целого, чтобы 
+  long long rright =
+      roundl(right);  // roundl - округление до ближайшего целого, чтобы
   if (rright) {
     // записывает в буфер
     s21_itoa(right_str, opt, rright);
   }
 
   // дописываем нули при точности большей чем длина после точки
-  while (opt->precision != -1 &&
-         (int)s21_strlen(right_str) < opt->precision) {
+  while (opt->precision != -1 && (int)s21_strlen(right_str) < opt->precision) {
     right_str[s21_strlen(right_str)] = '0';
   }
 
-  //переводим левую часть в строку
-  s21_itoa(left_str, opt, rright);
+  // переводим левую часть в строку
+  s21_itoa(left_str, opt, lleft);
 
-
-  //переводим все в буфер 
+  // переводим все в буфер
   if (s21_strlen(right_str)) {
     s21_strcat(buf, right_str);
     s21_strcat(buf, ".");
   }
   s21_strcat(buf, left_str);
-
-  // добавляем знак
-  if (opt->negative) {
-    buf[s21_strlen(buf)] = '-';
-  }
-
-  add_width(buf, opt);
-  save_buf_in_str(str, buf, opt);
-
-
 }
 
-
-
-work_percent(const char **format, options_sprintf *opt, char **str,
-              va_list *vl, char *buf) {
+void work_percent(const char **format, options_sprintf *opt, char **str,
+                  va_list *vl, char *buf) {
   *buf = '%';
   add_precision(buf, opt);
   // устанавливаем ширину
@@ -158,7 +153,7 @@ void work_str(const char **format, options_sprintf *opt, char **str,
     if (opt->width > len) len_d = opt->width;
     if (opt->precision > len) len_d = opt->precision;
     // если мы указываем точность меньше чем длина строки, то строка уменьшается
-    if (opt->flag_for_s_precision && opt->precision < len) len = opt->precision;
+    if (opt->is_precision && opt->precision < len) len = opt->precision;
     char *str_buf = calloc(sizeof(char), len_d + 30);
     if (str_buf) {
       // Заполянем буфер
@@ -277,7 +272,9 @@ void add_width(char *buf, options_sprintf *opt) {
   long int len = s21_strlen(buf);
   // если у нас стоит флаг '0' - insert_zero, то мы дополняем ширину 0
   if (opt->insert_zero && !opt->precision ||
-      (opt->insert_zero && opt->specifiers == 's')) {
+      (opt->insert_zero && opt->specifiers == 's') ||
+      (opt->insert_zero &&
+       (opt->specifiers == 'f' || opt->specifiers == 'F'))) {
     long int def = opt->width - len;
     while (def-- > 0) {
       if ((def == 0 && ((opt->show_sign || opt->negative || opt->leave_space) ||
@@ -335,8 +332,8 @@ void add_width(char *buf, options_sprintf *opt) {
 
 // преобразует число в строку и записывает наоборот, без знака!
 void s21_itoa(char *buf, options_sprintf *opt, long int var) {
-  
-  // определяем отрицательное число, не нужно для флагов с плавающей точкой, там по другому!
+  // определяем отрицательное число, не нужно для флагов с плавающей точкой, там
+  // по другому!
   if (!s21_strchr("fFgGeE", opt->specifiers)) opt->negative = var < 0 ? 1 : 0;
   // это нужно для unsigned
   if (s21_strchr("oxXu", opt->specifiers)) {
@@ -373,7 +370,11 @@ int check_conflict_flags(options_sprintf *opt) {
     opt->show_sign = 0;
     opt->leave_space = 0;
   }
-  if (opt->specifiers == 'd' || opt->specifiers == 'i' || opt->specifiers == 'e' || opt->specifiers == 'E' || opt->specifiers == 'f' || opt->specifiers == 'F' || opt->specifiers == 'g' || opt->specifiers == 'G' ) opt->base = 10;
+  if (opt->specifiers == 'd' || opt->specifiers == 'i' ||
+      opt->specifiers == 'e' || opt->specifiers == 'E' ||
+      opt->specifiers == 'f' || opt->specifiers == 'F' ||
+      opt->specifiers == 'g' || opt->specifiers == 'G')
+    opt->base = 10;
   if (opt->specifiers == 'x' || opt->specifiers == 'X') opt->base = 16;
   if (opt->specifiers == 'p') opt->base = 16;
   if (opt->specifiers == 'o') opt->base = 8;
@@ -405,7 +406,6 @@ int check_conflict_flags(options_sprintf *opt) {
     opt->insert_ox_dot = 0;
     opt->precision = 0;
   }
-
 }
 
 // считываем флаги "-+ #0"
@@ -486,14 +486,14 @@ int get_precision(const char **format, options_sprintf *opt, va_list *vl) {
     *format += long_precision;
 
     // костыль для точности в спецификаторе s
-    opt->flag_for_s_precision = 1;
+    opt->is_precision = 1;
 
     // нужно написать преоброзование строки в число
   } else if (**format == '.' && *(*format + 1) == '*') {
     // нужно дописать получение int из аргв
     opt->precision = va_arg(*vl, int);
     (*format) += 2;
-    opt->flag_for_s_precision = 1;
+    opt->is_precision = 1;
   }
   // printf("!!!!!    opt->precision %llu   !!! \n", opt->precision);
   return 0;
@@ -501,7 +501,7 @@ int get_precision(const char **format, options_sprintf *opt, va_list *vl) {
 
 // считываем спецификатор
 int get_specifiers(const char **format, options_sprintf *opt, va_list *vl) {
-  if (s21_strchr("cdieEfgGosuxXpn%", **format)) {
+  if (s21_strchr("cdieEfFgGosuxXpn%", **format)) {
     opt->specifiers = **format;
     (*format)++;
   } else {
