@@ -75,13 +75,39 @@ int push_opt(const char **format, options_sprintf *opt,
 
 void work_double(const char **format, options_sprintf *opt, char **str,
               va_list *vl, char *buf) {
-   long double var_decimal = 0;
+   long double var_double = 0;
   if (opt->length == 'L') {
-    var_decimal = (long double)va_arg(*vl, long double);
+    var_double = (long double)va_arg(*vl, long double);
   } else {
-    var_decimal = (double)va_arg(*vl, double);
+    var_double = (double)va_arg(*vl, double);
+  }
+  // для точности -1 
+  if (opt->precision == -1) {
+    var_double = roundl(var_double);
   }
 
+
+  // отрицательное ли число
+  opt->negative = var_double < 0 ? 1 : 0;
+
+  // разделяет число на целую и дробную часть, left - целая, right - дробная
+  long double left = 0;
+  long double right = modfl(var_double, &left);
+
+
+  long long lleft = left;
+  char left_str[50] = {'\0'};
+  char right_str[50] = {'\0'};
+
+  // для установления точности числа 
+  for (int i = 0; i < opt->precision; i++) {
+    right *= 10;
+  }
+  long long rright = roundl(right); // roundl - округление до ближайшего целого, чтобы 
+  if (rright) {
+    // записывает 
+    s21_itoa(right_str, opt, rright);
+  }
 
 
 
@@ -285,13 +311,15 @@ void add_width(char *buf, options_sprintf *opt) {
 
 // преобразует число в строку и записывает наоборот, без знака!
 void s21_itoa(char *buf, options_sprintf *opt, long int var) {
-  int i = 0;
-  opt->negative = var < 0 ? 1 : 0;
+  
+  // определяем отрицательное число, не нужно для флагов с плавающей точкой, там по другому!
+  if (!s21_strchr("fFgGeE", opt->specifiers)) opt->negative = var < 0 ? 1 : 0;
   // это нужно для unsigned
   if (s21_strchr("oxXu", opt->specifiers)) {
     opt->negative = 0;
   }
 
+  int i = 0;
   var = var < 0 ? -var : var;
   if (var == 0) {
     buf[i++] = '0';
@@ -321,7 +349,7 @@ int check_conflict_flags(options_sprintf *opt) {
     opt->show_sign = 0;
     opt->leave_space = 0;
   }
-  if (opt->specifiers == 'd' || opt->specifiers == 'i') opt->base = 10;
+  if (opt->specifiers == 'd' || opt->specifiers == 'i' || opt->specifiers == 'e' || opt->specifiers == 'E' || opt->specifiers == 'f' || opt->specifiers == 'F' || opt->specifiers == 'g' || opt->specifiers == 'G' ) opt->base = 10;
   if (opt->specifiers == 'x' || opt->specifiers == 'X') opt->base = 16;
   if (opt->specifiers == 'p') opt->base = 16;
   if (opt->specifiers == 'o') opt->base = 8;
@@ -418,11 +446,24 @@ int get_length(const char **format, options_sprintf *opt) {
 int get_precision(const char **format, options_sprintf *opt, va_list *vl) {
   if (**format == '.' && *(*format + 1) != '*') {
     (*format)++;
-    int long_precision = s21_strspn(*format, "1234567890");
+    int long_precision = s21_strspn(*format, "1234567890-");
+    // для отрицательной точности
+    if (**format == '-') {
+      (*format)++;
+      long_precision--;
+      opt->negative_presicion = 1;
+    }
+
     // printf("long precision %d\n", long_precision);
+    // записываем точность
     opt->precision = string_to_number(*format, long_precision);
+    // костыль для отрицательной точности
+    if (opt->negative_presicion) opt->precision = -opt->precision;
     *format += long_precision;
+
+    // костыль для точности в спецификаторе s
     opt->flag_for_s_precision = 1;
+
     // нужно написать преоброзование строки в число
   } else if (**format == '.' && *(*format + 1) == '*') {
     // нужно дописать получение int из аргв

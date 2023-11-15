@@ -228,7 +228,8 @@ typedef struct options_sprintf {
   // additionally, для удобства кодинга
   int negative;  // отрицительное ли число
   int base;      // система счисления
-  int flag_for_s_precision;
+  int flag_for_s_precision; // костыль для точности спецификатора s
+  int negative_presicion; // костыль для отрицательной точности 
 
 } options_sprintf;
 

@@ -378,7 +378,7 @@ int main() {
   static char testt5[500] = {0};
   s21_sprintf(testt5, "11Hello '%+20.1p'", &test4);
   printf("%s\n", testt5);
-  // обгуляются флаги для +' '
+
 
 
 int n = 0;
@@ -391,7 +391,7 @@ int n2 = 0;
   static char testt6[500] = {0};
   s21_sprintf(testt6, "11Hello '%p' %n", &test4, &n2);
   printf("%s %d\n", testt6, n2);
-  // обгуляются флаги для +' '
+
 
 
   static char test7[500] = {0};
@@ -401,7 +401,14 @@ int n2 = 0;
   static char testt7[500] = {0};
   s21_sprintf(testt7, "11Hello '%-08%'", &test4);
   printf("%s\n", testt7);
-  // обгуляются флаги для +' '
+
+  static char test8[500] = {0};
+  sprintf(test8, "12311Hello '%E %e'\n %.7f %.10f  %.-1f", +1.234500E-03, 0.001234510, -1.234540E-03, 0.001234500, 10.565);
+  printf("%s\n", test8);
+
+  static char testt8[500] = {0};
+  s21_sprintf(testt7, "11Hello '%-08%'");
+  printf("%s\n", testt7);
 
 
   return 0;
