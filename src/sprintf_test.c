@@ -402,12 +402,17 @@ int n2 = 0;
   s21_sprintf(testt7, "11Hello '%-08%'", &test4);
   printf("%s\n", testt7);
 
+  static char test88[500] = {0};
+  sprintf(test88, "\n\n12311Hello '%E %e'\n %.7f %.10f  %.-1f", +1.234500E-03, 0.001234510, -1.234540E-03, 0.001234500, 10.565);
+  printf("%s\n", test88);
+
+
   static char test8[500] = {0};
-  sprintf(test8, "12311Hello '%E %e'\n %.7f %.10f  %.-1f", +1.234500E-03, 0.001234510, -1.234540E-03, 0.001234500, 10.565);
+  sprintf(test8, "\n\nHello '%f'", 123.456);
   printf("%s\n", test8);
 
   static char testt8[500] = {0};
-  s21_sprintf(testt7, "11Hello '%-08%'");
+  s21_sprintf(testt7, "Hello '%f'", 123.456);
   printf("%s\n", testt7);
 
 

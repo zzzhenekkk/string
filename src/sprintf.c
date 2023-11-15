@@ -105,10 +105,34 @@ void work_double(const char **format, options_sprintf *opt, char **str,
   }
   long long rright = roundl(right); // roundl - округление до ближайшего целого, чтобы 
   if (rright) {
-    // записывает 
+    // записывает в буфер
     s21_itoa(right_str, opt, rright);
   }
 
+  // дописываем нули при точности большей чем длина после точки
+  while (opt->precision != -1 &&
+         (int)s21_strlen(right_str) < opt->precision) {
+    right_str[s21_strlen(right_str)] = '0';
+  }
+
+  //переводим левую часть в строку
+  s21_itoa(left_str, opt, rright);
+
+
+  //переводим все в буфер 
+  if (s21_strlen(right_str)) {
+    s21_strcat(buf, right_str);
+    s21_strcat(buf, ".");
+  }
+  s21_strcat(buf, left_str);
+
+  // добавляем знак
+  if (opt->negative) {
+    buf[s21_strlen(buf)] = '-';
+  }
+
+  add_width(buf, opt);
+  save_buf_in_str(str, buf, opt);
 
 
 }
