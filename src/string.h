@@ -237,38 +237,34 @@ typedef struct options_sprintf {
 } options_sprintf;
 
 // Парсит данные и записывает в поля структуры.
-int parsing(const char **format, options_sprintf *opt, char **str, va_list *vl,
+void parsing(const char **format, options_sprintf *opt, char **str, va_list *vl,
             char *str_begin);
-int get_opt(const char **format, options_sprintf *opt, char **str, va_list *vl);
-int get_flags(const char **format, options_sprintf *opt);
-int get_width(const char **format, options_sprintf *opt, va_list *vl);
-int get_precision(const char **format, options_sprintf *opt, va_list *vl);
-int get_length(const char **format, options_sprintf *opt);
-int get_specifiers(const char **format, options_sprintf *opt, va_list *vl);
-
-int push_opt(const char **format, options_sprintf *opt, char **str, va_list *vl,
-             char *str_begin);
-
-int check_conflict_flags(options_sprintf *opt);
+void get_opt(const char **format, options_sprintf *opt, va_list *vl);
+void get_flags(const char **format, options_sprintf *opt);
+void get_width(const char **format, options_sprintf *opt, va_list *vl);
+void get_precision(const char **format, options_sprintf *opt, va_list *vl);
+void get_length(const char **format, options_sprintf *opt);
+void get_specifiers(const char **format, options_sprintf *opt);
+void push_opt(options_sprintf *opt, char **str, va_list *vl, char *str_begin);
+void check_conflict_flags(options_sprintf *opt);
 
 void reset_opt(options_sprintf *opt);
-void work_g(const char **format, options_sprintf *opt, char **str, va_list *vl,
+void work_g(options_sprintf *opt, char **str, va_list *vl,
             char *buf);
-void work_e(const char **format, options_sprintf *opt, char **str, va_list *vl,
+void work_e(options_sprintf *opt, char **str, va_list *vl,
             char *buf);
 
-void work_double(const char **format, options_sprintf *opt, char **str,
+void work_double(options_sprintf *opt, char **str,
                  va_list *vl, char *buf);
-void work_percent(const char **format, options_sprintf *opt, char **str,
-                  va_list *vl, char *buf);
-void work_str(const char **format, options_sprintf *opt, char **str,
-              va_list *vl, char *buf);
-int work_decimal(const char **format, options_sprintf *opt, char **str,
+void work_percent(options_sprintf *opt, char **str, char *buf);
+void work_str(options_sprintf *opt, char **str,
+              va_list *vl);
+void work_decimal(options_sprintf *opt, char **str,
                  va_list *vl, char *buf);
-int work_unsigned(const char **format, options_sprintf *opt, char **str,
+void work_unsigned(options_sprintf *opt, char **str,
                   va_list *vl, char *buf);
 
-void work_symbol(const char **format, options_sprintf *opt, char **str,
+void work_symbol(options_sprintf *opt, char **str,
                  va_list *vl, char *buf);
 void itoa_and_precision_for_e(char *buf, options_sprintf *opt,
                               long double var_double);
@@ -277,7 +273,7 @@ void itoa_and_precision_for_f(char *buf, options_sprintf *opt,
 void s21_itoa(char *buf, options_sprintf *opt, long int var);
 void add_precision(char *buf, options_sprintf *opt);
 void add_width(char *buf, options_sprintf *opt);
-void save_buf_in_str(char **str, char *buf, options_sprintf *opt);
+void save_buf_in_str(char **str, char *buf);
 
 // приводит число с плавающей точкой к виду 1 <= f < 10 и записывает степень в
 // opt->exponent

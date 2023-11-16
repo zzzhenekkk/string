@@ -56,32 +56,20 @@ int main() {
   static char buff38[500] = {0};
 
   static char buf4[500] = {0};
-  static char buf42[500] = {0};
-  static char buf43[500] = {0};
-  static char buf44[500] = {0};
-  static char buf45[500] = {0};
-  static char buf46[500] = {0};
-  static char buf47[500] = {0};
-  static char buf48[500] = {0};
+
 
   static char buff4[500] = {0};
-  static char buff42[500] = {0};
-  static char buff43[500] = {0};
-  static char buff44[500] = {0};
-  static char buff45[500] = {0};
-  static char buff46[500] = {0};
-  static char buff47[500] = {0};
-  static char buff48[500] = {0};
+
 
   sprintf(buf1,
           "%d  1d '%1d'  .1d '%.1d'  4d '%4d'  .4d '%.4d'  4.6d '%4.6d'  6.4d "
           "'%6.4d'",
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+          0, 0, 0, 0, 0, 0, 0, 0);
   s21_sprintf(
       buff1,
       "%d  1d '%1d'  .1d '%.1d'  4d '%4d'  .4d '%.4d'  4.6d '%4.6d'  6.4d "
       "'%6.4d'\n",
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      0, 0, 0, 0, 0, 0, 0, 0);
 
   sprintf(buf12,
           "%d -1d '%-1d' -.1d '%-.1d' -4d '%-4d' -.4d '%-.4d' -4.6d '%-4.6d' "
