@@ -225,12 +225,15 @@ typedef struct options_sprintf {
   // specifiers спецификатор
   char specifiers;
 
-  // additionally, для удобства кодинга
-  int negative;  // отрицительное ли число
-  int base;      // система счисления
-  int is_precision;  // введена ли точность, нужна так как
+  // additionally, для удобства кодинга костыли!
+  int negative;      // отрицительное ли число
+  int base;          // система счисления 10 или 16
+  int is_precision;  // введена ли точность, нужна так как после инициализации
+                     // 10
   int negative_presicion;  // костыль для отрицательной точности
-
+  int exponent;  // показатель степени при спецификаторе e после E +1.23E+03
+  int uppercase;  // заглавные буквы 1 - да, для спецификаторов с плавающей
+                  // точкой
 } options_sprintf;
 
 // Парсит данные и записывает в поля структуры.
@@ -248,6 +251,9 @@ int push_opt(const char **format, options_sprintf *opt, char **str, va_list *vl,
 
 int check_conflict_flags(options_sprintf *opt);
 
+void work_e(const char **format, options_sprintf *opt, char **str, va_list *vl,
+            char *buf);
+
 void work_double(const char **format, options_sprintf *opt, char **str,
                  va_list *vl, char *buf);
 void work_percent(const char **format, options_sprintf *opt, char **str,
@@ -261,13 +267,18 @@ int work_unsigned(const char **format, options_sprintf *opt, char **str,
 
 void work_symbol(const char **format, options_sprintf *opt, char **str,
                  va_list *vl, char *buf);
-
+void itoa_and_precision_for_e(char *buf, options_sprintf *opt,
+                              long double var_double);
 void itoa_and_precision_for_f(char *buf, options_sprintf *opt,
                               long double var_double);
 void s21_itoa(char *buf, options_sprintf *opt, long int var);
 void add_precision(char *buf, options_sprintf *opt);
 void add_width(char *buf, options_sprintf *opt);
 void save_buf_in_str(char **str, char *buf, options_sprintf *opt);
+
+// приводит число с плавающей точкой к виду 1 <= f < 10 и записывает степень в
+// opt->exponent
+void normilize(long double *var_double, options_sprintf *opt);
 
 // преобразуем строку в число
 s21_size_t string_to_number(const char *start, int number_of_symbols);

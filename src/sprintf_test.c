@@ -404,11 +404,11 @@ int main() {
   printf("%s\n", test88);
 
   static char test8[500] = {0};
-  sprintf(test8, "\n\nHello '%10.10F'", -1.234540E-03);
+  sprintf(test8, "\n\nHello '%E'", -0.234);
   printf("%s\n", test8);
 
   static char testt8[500] = {0};
-  s21_sprintf(testt8, "Hello '%10.10F'", -1.234540E-03);
+  s21_sprintf(testt8, "Hello '%E'", -0.234);
   printf("%s\n", testt8);
 
   return 0;

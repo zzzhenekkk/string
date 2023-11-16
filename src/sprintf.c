@@ -68,9 +68,25 @@ int push_opt(const char **format, options_sprintf *opt, char **str, va_list *vl,
     work_percent(format, opt, str, vl, buf);
   } else if (opt->specifiers == 'f' || opt->specifiers == 'F') {
     work_double(format, opt, str, vl, buf);
+  } else if (opt->specifiers == 'e' || opt->specifiers == 'E') {
+    work_e(format, opt, str, vl, buf);
   }
 
   return 0;
+}
+
+void work_e(const char **format, options_sprintf *opt, char **str, va_list *vl,
+            char *buf) {
+  long double var_double = 0;
+  if (opt->length == 'L') {
+    var_double = (long double)va_arg(*vl, long double);
+  } else {
+    var_double = (double)va_arg(*vl, double);
+  }
+
+  itoa_and_precision_for_e(buf, opt, var_double);
+  add_width(buf, opt);
+  save_buf_in_str(str, buf, opt);
 }
 
 void work_double(const char **format, options_sprintf *opt, char **str,
@@ -85,6 +101,81 @@ void work_double(const char **format, options_sprintf *opt, char **str,
   itoa_and_precision_for_f(buf, opt, var_double);
   add_width(buf, opt);
   save_buf_in_str(str, buf, opt);
+}
+
+void normilize(long double *var_double, options_sprintf *opt) {
+  if (*var_double >= 10) {
+    while (*var_double > 10) *var_double /= 10;
+    opt->exponent++;
+  }
+
+  if (*var_double < 1) {
+    while (*var_double < 1) *var_double *= 10;
+    opt->exponent--;
+  }
+}
+
+void itoa_and_precision_for_e(char *buf, options_sprintf *opt,
+                              long double var_double) {
+  // отрицательное ли число
+  opt->negative = var_double < 0 ? 1 : 0;
+  var_double = var_double < 0 ? -var_double : var_double;
+
+  //////////////////////////////////////////////////
+  // приводит число с плавающей точкой к виду 1 <= f < 10 и записывает степень в
+  // opt->exponent
+  normilize(&var_double, opt);
+  /////////////////////////////////////////////////
+
+  // для точности -1
+  if (opt->precision == -1) var_double = roundl(var_double);
+  // если не введена точность, то по умолчанию 6
+  if (!opt->is_precision) opt->precision = 6;
+
+  // разделяем число на целую и дробную часть, left - целая, right - дробная
+  long double left = 0;
+  long double right = modfl(var_double, &left);
+
+  long long lleft = left;
+  char left_str[50] = {'\0'};
+  char right_str[50] = {'\0'};
+
+  // для установления точности числа, вначале переводим его в целую часть, до
+  // указанной точности
+  for (int i = 0; i < opt->precision; i++) {
+    right *= 10;
+  }
+  long long rright =
+      roundl(right);  // roundl - округление до ближайшего целого, чтобы
+  if (rright) {
+    // записывает правую часть в строку
+    s21_itoa(right_str, opt, rright);
+  }
+
+  // дописываем нули при точности большей чем длина после точки
+  while (opt->precision != -1 && (int)s21_strlen(right_str) < opt->precision) {
+    right_str[s21_strlen(right_str)] = '0';
+  }
+
+  // переводим левую часть в строку
+  s21_itoa(left_str, opt, lleft);
+  ////////////////////////////////////////////////////
+  // переводим opt->exponent в буфер
+  s21_itoa(buf, opt, opt->exponent);
+  // дописываем ноль, если e от 0 до 9
+  if (s21_strlen(buf) == 1) {
+    buf[1] = '0';
+  }
+  s21_strcat(buf, opt->exponent >= 0 ? "+" : "-");
+  s21_strcat(buf, opt->uppercase ? "E" : "e");
+  ////////////////////////////////////////////////////
+
+  // переводим все в буфер, склеиваем строку
+  if (s21_strlen(right_str)) {
+    s21_strcat(buf, right_str);
+    s21_strcat(buf, ".");
+  }
+  s21_strcat(buf, left_str);
 }
 
 void itoa_and_precision_for_f(char *buf, options_sprintf *opt,
@@ -114,7 +205,7 @@ void itoa_and_precision_for_f(char *buf, options_sprintf *opt,
   long long rright =
       roundl(right);  // roundl - округление до ближайшего целого, чтобы
   if (rright) {
-    // записывает в буфер
+    // записывает в буфер правую часть
     s21_itoa(right_str, opt, rright);
   }
 
@@ -126,7 +217,7 @@ void itoa_and_precision_for_f(char *buf, options_sprintf *opt,
   // переводим левую часть в строку
   s21_itoa(left_str, opt, lleft);
 
-  // переводим все в буфер
+  // переводим все в буфер, склеиваем строку
   if (s21_strlen(right_str)) {
     s21_strcat(buf, right_str);
     s21_strcat(buf, ".");
@@ -370,6 +461,11 @@ int check_conflict_flags(options_sprintf *opt) {
     opt->show_sign = 0;
     opt->leave_space = 0;
   }
+  // для заглавных букв
+  if (s21_strchr("XEFG", opt->specifiers)) {
+    opt->uppercase = 1;
+  }
+
   if (opt->specifiers == 'd' || opt->specifiers == 'i' ||
       opt->specifiers == 'e' || opt->specifiers == 'E' ||
       opt->specifiers == 'f' || opt->specifiers == 'F' ||
