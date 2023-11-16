@@ -70,10 +70,36 @@ int push_opt(const char **format, options_sprintf *opt, char **str, va_list *vl,
     work_double(format, opt, str, vl, buf);
   } else if (opt->specifiers == 'e' || opt->specifiers == 'E') {
     work_e(format, opt, str, vl, buf);
+  } else if (opt->specifiers == 'g' || opt->specifiers == 'G') {
+    work_g(format, opt, str, vl, buf);
   }
 
   return 0;
 }
+
+void work_g(const char **format, options_sprintf *opt, char **str, va_list *vl,
+            char *buf) {
+  long double var_double = 0;
+  if (opt->length == 'L') {
+    var_double = (long double)va_arg(*vl, long double);
+  } else {
+    var_double = (double)va_arg(*vl, double);
+  }
+   //////////////////////////////////////////////////
+  // приводит число с плавающей точкой к виду 1 <= f < 10 и записывает степень в
+  // opt->exponent
+  normilize(&var_double, opt);
+  /////////////////////////////////////////////////
+  if (opt->exponent < -4 || opt->exponent > 5) {
+    itoa_and_precision_for_e(buf, opt, var_double);
+  } else {
+    itoa_and_precision_for_f(buf, opt, var_double);
+  }
+
+  add_width(buf, opt);
+  save_buf_in_str(str, buf, opt);
+}
+
 
 void work_e(const char **format, options_sprintf *opt, char **str, va_list *vl,
             char *buf) {
