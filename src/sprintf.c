@@ -85,41 +85,57 @@ void work_g(const char **format, options_sprintf *opt, char **str, va_list *vl,
   } else {
     var_double = (double)va_arg(*vl, double);
   }
-  long double var_double_2 = var_double;
-  //////////////////////////////////////////////////
-  // приводит число с плавающей точкой к виду 1 <= f < 10 и записывает степень в
-  // opt->exponent
-  normilize(&var_double_2, opt);
-  /////////////////////////////////////////////////
-  char buf2[5000] = {0};
-  int flag = 1;
-  // opt->exponent = 0;
-  // options_sprintf opt2 = *opt;
-  // itoa_and_precision_for_e(buf, &opt2, var_double);
-  // itoa_and_precision_for_f(buf2, opt, var_double);
 
-  // reset_opt(opt);
+  if (!isnan(var_double) && !isinf(var_double)) {
+    //////////////////////////////////////////////////
+    // отрицательное ли число
+    opt->negative = var_double < 0 ? 1 : 0;
+    var_double = var_double < 0 ? -var_double : var_double;
 
-  // if (s21_strlen(buf) > s21_strlen(buf2)) flag = 2;
+    long double var_double_2 = var_double;
+    // приводит число с плавающей точкой к виду 1 <= f < 10 и записывает степень
+    // в opt->exponent
+    normilize(&var_double_2, opt);
+    /////////////////////////////////////////////////
+    char buf2[5000] = {0};
+    int flag = 1;
+    // opt->exponent = 0;
+    // options_sprintf opt2 = *opt;
+    // itoa_and_precision_for_e(buf, &opt2, var_double);
+    // itoa_and_precision_for_f(buf2, opt, var_double);
 
-  if (opt->exponent < -4 || opt->exponent > 5) {
-    opt->exponent = 0;
-    itoa_and_precision_for_e(buf, opt, var_double);
-  } else {
-    opt->exponent = 0;
-    itoa_and_precision_for_f(buf, opt, var_double);
+    // reset_opt(opt);
+
+    // if (s21_strlen(buf) > s21_strlen(buf2)) flag = 2;
+
+    if (opt->exponent < -4 || opt->exponent > 5) {
+      opt->exponent = 0;
+      itoa_and_precision_for_e(buf, opt, var_double);
+    } else {
+      opt->exponent = 0;
+      itoa_and_precision_for_f(buf, opt, var_double);
+    }
+    add_width(buf, opt);
+    save_buf_in_str(str, buf, opt);
+
+    // проверка на inf - превышает максимально допустимое значение
+    // и non - недопустимое число
+  } else if (isnan(var_double)) {
+    s21_strcat(buf, opt->specifiers == 'G' ? "NAN" : "nan");
+    save_buf_in_str(str, buf, opt);
+  } else if (isinf(var_double)) {
+    s21_strcat(buf, opt->specifiers == 'G' ? "FNI" : "fni");
+    s21_strcat(buf, var_double > 0 ? "+" : "-");
+    save_buf_in_str(str, buf, opt);
   }
-  add_width(buf, opt);
-  save_buf_in_str(str, buf, opt);
-
   // add_width(flag == 2 ? buf2 : buf, flag == 2 ? &opt2 : opt);
   // save_buf_in_str(str, flag == 2 ? buf2 : buf, opt);
 }
-void reset_opt(options_sprintf *opt) {
-  opt->negative = 0;  // отрицительное ли число
-  opt->exponent = 0;  // показатель степени
-                      // при спецификаторе e после E +1.23E+03
-}
+// void reset_opt(options_sprintf *opt) {
+//   opt->negative = 0;  // отрицительное ли число
+//   opt->exponent = 0;  // показатель степени
+//                       // при спецификаторе e после E +1.23E+03
+// }
 
 void work_e(const char **format, options_sprintf *opt, char **str, va_list *vl,
             char *buf) {
@@ -130,9 +146,19 @@ void work_e(const char **format, options_sprintf *opt, char **str, va_list *vl,
     var_double = (double)va_arg(*vl, double);
   }
 
-  itoa_and_precision_for_e(buf, opt, var_double);
-  add_width(buf, opt);
-  save_buf_in_str(str, buf, opt);
+  if (!isnan(var_double) && !isinf(var_double)) {
+    itoa_and_precision_for_e(buf, opt, var_double);
+    add_width(buf, opt);
+    save_buf_in_str(str, buf, opt);
+
+  } else if (isnan(var_double)) {
+    s21_strcat(buf, opt->specifiers == 'E' ? "NAN" : "nan");
+    save_buf_in_str(str, buf, opt);
+  } else if (isinf(var_double)) {
+    s21_strcat(buf, opt->specifiers == 'E' ? "FNI" : "fni");
+    s21_strcat(buf, var_double > 0 ? "+" : "-");
+    save_buf_in_str(str, buf, opt);
+  }
 }
 
 void work_double(const char **format, options_sprintf *opt, char **str,
@@ -144,9 +170,19 @@ void work_double(const char **format, options_sprintf *opt, char **str,
     var_double = (double)va_arg(*vl, double);
   }
 
-  itoa_and_precision_for_f(buf, opt, var_double);
-  add_width(buf, opt);
-  save_buf_in_str(str, buf, opt);
+  if (!isnan(var_double) && !isinf(var_double)) {
+    itoa_and_precision_for_f(buf, opt, var_double);
+    add_width(buf, opt);
+    save_buf_in_str(str, buf, opt);
+
+  } else if (isnan(var_double)) {
+    s21_strcat(buf, opt->specifiers == 'F' ? "NAN" : "nan");
+    save_buf_in_str(str, buf, opt);
+  } else if (isinf(var_double)) {
+    s21_strcat(buf, opt->specifiers == 'F' ? "FNI" : "fni");
+    s21_strcat(buf, var_double > 0 ? "+" : "-");
+    save_buf_in_str(str, buf, opt);
+  }
 }
 
 void normilize(long double *var_double, options_sprintf *opt) {
@@ -235,7 +271,8 @@ void itoa_and_precision_for_f(char *buf, options_sprintf *opt,
   if (!opt->is_precision) opt->precision = 6;
 
   // отрицательное ли число
-  opt->negative = var_double < 0 ? 1 : 0;
+  if (!s21_strchr("gG", opt->specifiers))
+    opt->negative = var_double < 0 ? 1 : 0;
   var_double = var_double < 0 ? -var_double : var_double;
 
   // разделяем число на целую и дробную часть, left - целая, right - дробная
@@ -245,6 +282,19 @@ void itoa_and_precision_for_f(char *buf, options_sprintf *opt,
   long long lleft = left;
   char left_str[500] = {'\0'};
   char right_str[500] = {'\0'};
+  long double rrright = right;
+  long double lllleft;
+
+  if (s21_strchr("gG", opt->specifiers)) {
+    int count = 0;
+    while (modfl(rrright, &lllleft) >= 1e-6) {
+      rrright *= 10;
+      count++;
+    }
+    // if (count > 5) count = 5;
+    if (opt->precision > count) opt->precision = count;
+    // точность 5
+  }
 
   // для установления точности числа, вначале переводим его в целую часть, до
   // указанной точности
@@ -264,11 +314,10 @@ void itoa_and_precision_for_f(char *buf, options_sprintf *opt,
 
   // дописываем нули при точности большей чем длина после точки, не подходит для
   // gG спецификаторов
-  if (!s21_strchr("gG", opt->specifiers))
-    while (opt->precision != -1 &&
-           (int)s21_strlen(right_str) < opt->precision) {
-      right_str[s21_strlen(right_str)] = '0';
-    }
+  // if (!s21_strchr("gG", opt->specifiers))
+  while (opt->precision != -1 && (int)s21_strlen(right_str) < opt->precision) {
+    right_str[s21_strlen(right_str)] = '0';
+  }
 
   // переводим левую часть в строку
   s21_itoa(left_str, opt, lleft);
