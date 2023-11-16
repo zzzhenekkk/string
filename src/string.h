@@ -251,6 +251,9 @@ int push_opt(const char **format, options_sprintf *opt, char **str, va_list *vl,
 
 int check_conflict_flags(options_sprintf *opt);
 
+void reset_opt(options_sprintf *opt);
+void work_g(const char **format, options_sprintf *opt, char **str, va_list *vl,
+            char *buf);
 void work_e(const char **format, options_sprintf *opt, char **str, va_list *vl,
             char *buf);
 

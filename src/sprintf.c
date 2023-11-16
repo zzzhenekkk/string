@@ -85,21 +85,41 @@ void work_g(const char **format, options_sprintf *opt, char **str, va_list *vl,
   } else {
     var_double = (double)va_arg(*vl, double);
   }
-   //////////////////////////////////////////////////
+  long double var_double_2 = var_double;
+  //////////////////////////////////////////////////
   // приводит число с плавающей точкой к виду 1 <= f < 10 и записывает степень в
   // opt->exponent
-  normilize(&var_double, opt);
+  normilize(&var_double_2, opt);
   /////////////////////////////////////////////////
+  char buf2[5000] = {0};
+  int flag = 1;
+  // opt->exponent = 0;
+  // options_sprintf opt2 = *opt;
+  // itoa_and_precision_for_e(buf, &opt2, var_double);
+  // itoa_and_precision_for_f(buf2, opt, var_double);
+
+  // reset_opt(opt);
+
+  // if (s21_strlen(buf) > s21_strlen(buf2)) flag = 2;
+
   if (opt->exponent < -4 || opt->exponent > 5) {
+    opt->exponent = 0;
     itoa_and_precision_for_e(buf, opt, var_double);
   } else {
+    opt->exponent = 0;
     itoa_and_precision_for_f(buf, opt, var_double);
   }
-
   add_width(buf, opt);
   save_buf_in_str(str, buf, opt);
-}
 
+  // add_width(flag == 2 ? buf2 : buf, flag == 2 ? &opt2 : opt);
+  // save_buf_in_str(str, flag == 2 ? buf2 : buf, opt);
+}
+void reset_opt(options_sprintf *opt) {
+  opt->negative = 0;  // отрицительное ли число
+  opt->exponent = 0;  // показатель степени
+                      // при спецификаторе e после E +1.23E+03
+}
 
 void work_e(const char **format, options_sprintf *opt, char **str, va_list *vl,
             char *buf) {
@@ -130,17 +150,18 @@ void work_double(const char **format, options_sprintf *opt, char **str,
 }
 
 void normilize(long double *var_double, options_sprintf *opt) {
-  if (*var_double >= 10) {
-    while (*var_double > 10) *var_double /= 10;
-    opt->exponent++;
-  }
-
-  if (*var_double < 1) {
-    while (*var_double < 1) *var_double *= 10;
-    opt->exponent--;
+  if (*var_double >= 10.0) {
+    while (*var_double > 10.0) {
+      *var_double /= 10.0;
+      opt->exponent++;
+    }
+  } else if (*var_double < 1.0 && *var_double) {
+    while (*var_double < 1.0) {
+      *var_double *= 10.0;
+      opt->exponent--;
+    }
   }
 }
-
 void itoa_and_precision_for_e(char *buf, options_sprintf *opt,
                               long double var_double) {
   // отрицательное ли число
@@ -148,8 +169,8 @@ void itoa_and_precision_for_e(char *buf, options_sprintf *opt,
   var_double = var_double < 0 ? -var_double : var_double;
 
   //////////////////////////////////////////////////
-  // приводит число с плавающей точкой к виду 1 <= f < 10 и записывает степень в
-  // opt->exponent
+  // приводит число с плавающей точкой к виду 1 <= f < 10 и записывает степень
+  // в opt->exponent
   normilize(&var_double, opt);
   /////////////////////////////////////////////////
 
@@ -157,7 +178,9 @@ void itoa_and_precision_for_e(char *buf, options_sprintf *opt,
   if (opt->precision == -1) var_double = roundl(var_double);
   // если не введена точность, то по умолчанию 6
   if (!opt->is_precision) opt->precision = 6;
-
+  if (opt->specifiers == 'g' || opt->specifiers == 'G') {
+    opt->precision--;
+  }
   // разделяем число на целую и дробную часть, left - целая, right - дробная
   long double left = 0;
   long double right = modfl(var_double, &left);
@@ -171,6 +194,7 @@ void itoa_and_precision_for_e(char *buf, options_sprintf *opt,
   for (int i = 0; i < opt->precision; i++) {
     right *= 10;
   }
+
   long long rright =
       roundl(right);  // roundl - округление до ближайшего целого, чтобы
   if (rright) {
@@ -182,7 +206,6 @@ void itoa_and_precision_for_e(char *buf, options_sprintf *opt,
   while (opt->precision != -1 && (int)s21_strlen(right_str) < opt->precision) {
     right_str[s21_strlen(right_str)] = '0';
   }
-
   // переводим левую часть в строку
   s21_itoa(left_str, opt, lleft);
   ////////////////////////////////////////////////////
@@ -220,14 +243,18 @@ void itoa_and_precision_for_f(char *buf, options_sprintf *opt,
   long double right = modfl(var_double, &left);
 
   long long lleft = left;
-  char left_str[50] = {'\0'};
-  char right_str[50] = {'\0'};
+  char left_str[500] = {'\0'};
+  char right_str[500] = {'\0'};
 
   // для установления точности числа, вначале переводим его в целую часть, до
   // указанной точности
   for (int i = 0; i < opt->precision; i++) {
     right *= 10;
+    // для спецификаторов gG нужно выводить кратчайшую запись без точности
+    // if (s21_strchr("gG", opt->specifiers))
+    //   if ((right - roundl(right)) < 0.000001) break;
   }
+
   long long rright =
       roundl(right);  // roundl - округление до ближайшего целого, чтобы
   if (rright) {
@@ -235,10 +262,13 @@ void itoa_and_precision_for_f(char *buf, options_sprintf *opt,
     s21_itoa(right_str, opt, rright);
   }
 
-  // дописываем нули при точности большей чем длина после точки
-  while (opt->precision != -1 && (int)s21_strlen(right_str) < opt->precision) {
-    right_str[s21_strlen(right_str)] = '0';
-  }
+  // дописываем нули при точности большей чем длина после точки, не подходит для
+  // gG спецификаторов
+  if (!s21_strchr("gG", opt->specifiers))
+    while (opt->precision != -1 &&
+           (int)s21_strlen(right_str) < opt->precision) {
+      right_str[s21_strlen(right_str)] = '0';
+    }
 
   // переводим левую часть в строку
   s21_itoa(left_str, opt, lleft);
@@ -269,7 +299,8 @@ void work_str(const char **format, options_sprintf *opt, char **str,
     long long unsigned int len_d = len;
     if (opt->width > len) len_d = opt->width;
     if (opt->precision > len) len_d = opt->precision;
-    // если мы указываем точность меньше чем длина строки, то строка уменьшается
+    // если мы указываем точность меньше чем длина строки, то строка
+    // уменьшается
     if (opt->is_precision && opt->precision < len) len = opt->precision;
     char *str_buf = calloc(sizeof(char), len_d + 30);
     if (str_buf) {
@@ -382,16 +413,14 @@ void add_precision(char *buf, options_sprintf *opt) {
 
 // устанавливаем ширину
 void add_width(char *buf, options_sprintf *opt) {
-  // флаг костыль нужен для печатания знака в ширину если есть negative space or
-  // show_sign
+  // флаг костыль нужен для печатания знака в ширину если есть negative space
+  // or show_sign
   int flag_zero_znak = 0;
 
   long int len = s21_strlen(buf);
   // если у нас стоит флаг '0' - insert_zero, то мы дополняем ширину 0
   if (opt->insert_zero && !opt->precision ||
-      (opt->insert_zero && opt->specifiers == 's') ||
-      (opt->insert_zero &&
-       (opt->specifiers == 'f' || opt->specifiers == 'F'))) {
+      (opt->insert_zero && s21_strchr("sfFgGeE", opt->specifiers))) {
     long int def = opt->width - len;
     while (def-- > 0) {
       if ((def == 0 && ((opt->show_sign || opt->negative || opt->leave_space) ||
@@ -449,8 +478,8 @@ void add_width(char *buf, options_sprintf *opt) {
 
 // преобразует число в строку и записывает наоборот, без знака!
 void s21_itoa(char *buf, options_sprintf *opt, long int var) {
-  // определяем отрицательное число, не нужно для флагов с плавающей точкой, там
-  // по другому!
+  // определяем отрицательное число, не нужно для флагов с плавающей точкой,
+  // там по другому!
   if (!s21_strchr("fFgGeE", opt->specifiers)) opt->negative = var < 0 ? 1 : 0;
   // это нужно для unsigned
   if (s21_strchr("oxXu", opt->specifiers)) {
@@ -627,7 +656,8 @@ int get_specifiers(const char **format, options_sprintf *opt, va_list *vl) {
     opt->specifiers = **format;
     (*format)++;
   } else {
-    // здесь, мы пишем, если спецификатор не подходящий, или еще какая-то ошибка
+    // здесь, мы пишем, если спецификатор не подходящий, или еще какая-то
+    // ошибка
   }
   return 0;
 }
