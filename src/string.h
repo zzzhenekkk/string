@@ -202,6 +202,7 @@ char *s21_strtok(char *str, const char *delim);
 
 // s21_sprintf.c
 
+// структура со всеми опциями и флагами к спецификатору
 typedef struct options_sprintf {
   // flags
   int left_alignment;  //  '-' выравнивание по левому краю
@@ -238,7 +239,7 @@ typedef struct options_sprintf {
 
 // Парсит данные и записывает в поля структуры.
 void parsing(const char **format, options_sprintf *opt, char **str, va_list *vl,
-            char *str_begin);
+             char *str_begin);
 void get_opt(const char **format, options_sprintf *opt, va_list *vl);
 void get_flags(const char **format, options_sprintf *opt);
 void get_width(const char **format, options_sprintf *opt, va_list *vl);
@@ -249,23 +250,16 @@ void push_opt(options_sprintf *opt, char **str, va_list *vl, char *str_begin);
 void check_conflict_flags(options_sprintf *opt);
 
 void reset_opt(options_sprintf *opt);
-void work_g(options_sprintf *opt, char **str, va_list *vl,
-            char *buf);
-void work_e(options_sprintf *opt, char **str, va_list *vl,
-            char *buf);
+void work_g(options_sprintf *opt, char **str, va_list *vl, char *buf);
+void work_e(options_sprintf *opt, char **str, va_list *vl, char *buf);
 
-void work_double(options_sprintf *opt, char **str,
-                 va_list *vl, char *buf);
+void work_double(options_sprintf *opt, char **str, va_list *vl, char *buf);
 void work_percent(options_sprintf *opt, char **str, char *buf);
-void work_str(options_sprintf *opt, char **str,
-              va_list *vl);
-void work_decimal(options_sprintf *opt, char **str,
-                 va_list *vl, char *buf);
-void work_unsigned(options_sprintf *opt, char **str,
-                  va_list *vl, char *buf);
+void work_str(options_sprintf *opt, char **str, va_list *vl);
+void work_decimal(options_sprintf *opt, char **str, va_list *vl, char *buf);
+void work_unsigned(options_sprintf *opt, char **str, va_list *vl, char *buf);
 
-void work_symbol(options_sprintf *opt, char **str,
-                 va_list *vl, char *buf);
+void work_symbol(options_sprintf *opt, char **str, va_list *vl, char *buf);
 void itoa_and_precision_for_e(char *buf, options_sprintf *opt,
                               long double var_double);
 void itoa_and_precision_for_f(char *buf, options_sprintf *opt,
