@@ -408,7 +408,7 @@ void work_decimal(options_sprintf *opt, char **str, va_list *vl, char *buf) {
 
 void save_buf_in_str(char **str, char *buf) {
   long long int len = s21_strlen(buf);
-  char *str_begin = *str;
+
   // переворачиваем buf и записываем в str
   while (len-- > 0) {
     *((*str)++) = buf[len];
