@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <wctype.h>
-// временно
+// временно, НЕ ЗАБЫТЬ УДАЛИТЬ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #include <stdio.h>
 #include <string.h>
 
@@ -249,7 +249,7 @@ void get_specifiers(const char **format, options_sprintf *opt);
 void push_opt(options_sprintf *opt, char **str, va_list *vl, char *str_begin);
 void check_conflict_flags(options_sprintf *opt);
 
-void reset_opt(options_sprintf *opt);
+// обрабатываем разные спецификаторы
 void work_g(options_sprintf *opt, char **str, va_list *vl, char *buf);
 void work_e(options_sprintf *opt, char **str, va_list *vl, char *buf);
 
@@ -264,9 +264,14 @@ void itoa_and_precision_for_e(char *buf, options_sprintf *opt,
                               long double var_double);
 void itoa_and_precision_for_f(char *buf, options_sprintf *opt,
                               long double var_double);
+
+// преобразует число в строку и записывает наоборот, без знака
 void s21_itoa(char *buf, options_sprintf *opt, long int var);
+// устанавливаем точность
 void add_precision(char *buf, options_sprintf *opt);
+// устанавлиаем ширину
 void add_width(char *buf, options_sprintf *opt);
+// сохраняем буфер в строку, и ставим 0 на конец строки
 void save_buf_in_str(char **str, char *buf);
 
 // приводит число с плавающей точкой к виду 1 <= f < 10 и записывает степень в
